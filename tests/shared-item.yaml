@@ -1,0 +1,19 @@
+apiVersion: camptocamp.com/v1
+kind: SharedConfigItem
+metadata:
+  name: frontend
+spec:
+  name: zen_carson_24
+  type: git
+  repo: git@github.com:camptocamp/demo_geomapfish.git
+  branch: '2.4'
+  key: eib3Phai
+  sub_dir: print/print-apps/demo
+  template_engines:
+    - type: shell
+      environment_variables: true
+      data: &demo
+        SMTP_USER: AKIA2S7C54WYKZLNRTPQ
+        SMTP_PASSWORD: BLBzoJnDAzLx5NGvFyUSKgN64x/ApPHGH3nDPLDlAFJE
+        AWS_ACCESS_KEY_ID: EXOf0a2a5c4899c42a691a7cd17
+        AWS_SECRET_ACCESS_KEY: PLjOiM1ppKqacRocubQAaOXq_dSGS0JIXGs_oJfIo7w
