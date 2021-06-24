@@ -1,0 +1,9 @@
+apiVersion: camptocamp.com/v1
+kind: SharedConfigConfig
+metadata:
+  name: test2
+  labels:
+    test: test2
+spec:
+  matchLabels:
+    test: test1

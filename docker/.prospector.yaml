@@ -1,0 +1,18 @@
+---
+strictness: veryhigh
+
+max-line-length: 110
+
+pep8:
+  disable:
+    - E722
+
+pylint:
+  disable:
+    - bare-except
+
+mypy:
+  run: true
+
+mccabe:
+  run: false

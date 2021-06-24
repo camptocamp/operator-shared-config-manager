@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "operator-shared-config-manager.fullname" . }}
+  labels:
+    {{- include "operator-shared-config-manager.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "operator-shared-config-manager.serviceAccountName" . }}
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: {{ include "operator-shared-config-manager.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
