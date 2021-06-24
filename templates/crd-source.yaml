@@ -1,0 +1,65 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: sharedconfigsources.camptocamp.com
+  labels:
+    {{- include "operator-shared-config-manager.labels" . | nindent 4 }}
+spec:
+  group: camptocamp.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                repo:
+                  type: string
+                branch:
+                  type: string
+                key:
+                  type: string
+                sub_dir:
+                  type: string
+                ssh_key:
+                  type: string
+                sparse:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: string
+                excludes:
+                  type: array
+                  items:
+                    type: string
+                template_engines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      environment_variables:
+                        type: boolean
+                      dest_sub_dir:
+                        type: string
+                      data:
+                        type: object
+                        extraProperties:
+                          type: string
+  scope: Cluster
+  names:
+    plural: sharedconfigsources
+    singular: sharedconfigsource
+    kind: SharedConfigSource
+    shortNames:
+      - scs

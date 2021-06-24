@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: '/docker'
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: none
+  - package-ecosystem: pip
+    directory: '/ci'
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: none
+
+  - package-ecosystem: docker
+    directory: '/docker'
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: none
