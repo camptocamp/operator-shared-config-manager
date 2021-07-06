@@ -13,4 +13,4 @@ prospector: build-test
 
 .PHONY: tests
 tests:
-	pytest
+	pytest --verbose

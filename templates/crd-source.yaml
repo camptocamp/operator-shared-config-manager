@@ -19,43 +19,9 @@ spec:
               properties:
                 name:
                   type: string
-                type:
-                  type: string
-                repo:
-                  type: string
-                branch:
-                  type: string
-                key:
-                  type: string
-                sub_dir:
-                  type: string
-                ssh_key:
-                  type: string
-                sparse:
-                  type: boolean
-                tags:
-                  type: array
-                  items:
-                    type: string
-                excludes:
-                  type: array
-                  items:
-                    type: string
-                template_engines:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                      environment_variables:
-                        type: boolean
-                      dest_sub_dir:
-                        type: string
-                      data:
-                        type: object
-                        additionalProperties:
-                          type: string
+                content:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: True
   scope: Namespaced
   names:
     plural: sharedconfigsources
