@@ -21,6 +21,10 @@ spec:
                   type: object
                   additionalProperties:
                     type: string
+                property:
+                  type: string
+                configmap_name:
+                  type: string
   scope: Namespaced
   names:
     plural: sharedconfigconfigs

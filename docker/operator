@@ -17,6 +17,8 @@ class Config(TypedDict):
     namespace: str
     labels: Dict[str, str]
     match_labels: Dict[str, str]
+    property: str
+    configmap_name: str
 
 
 class Main:
@@ -111,6 +113,8 @@ class Main:
                     "namespace": metadata["namespace"],
                     "labels": metadata.get("labels", {}),
                     "match_labels": config_object["spec"].get("matchLabels", {}),
+                    "property": config_object["spec"].get("property", "sources"),
+                    "configmap_name": config_object["spec"].get("name", "shared_config_manager.yaml"),
                 }
                 self.update(self.configs[f"{metadata['namespace']}.{metadata['name']}"])
             LOG.error("The configs watch exited")
@@ -124,7 +128,7 @@ class Main:
             selector = ",".join(["=".join(kv) for kv in config["match_labels"].items()])
             LOG.info("Update ConfigMap %s.%s (%s).", config["namespace"], config["name"], selector)
 
-            configmap_content: Dict[str, Any] = {"sources": {}}
+            configmap_content: Dict[str, Any] = {config["property"]: {}}
             custom_object_name_list = self.custom_api.list_cluster_custom_object(
                 group="camptocamp.com",
                 version="v1",
@@ -140,16 +144,17 @@ class Main:
                     custom_object.get("metadata", {}).get("name"),
                 )
 
+                LOG.error(custom_object["spec"])
                 name = custom_object["spec"]["name"]
-                del custom_object["spec"]["name"]
-                configmap_content["sources"][name] = custom_object["spec"]
+                content = custom_object["spec"]["content"]
+                configmap_content[config["property"]][name] = content
 
             config_map = kubernetes.client.V1ConfigMap(
                 metadata=kubernetes.client.V1ObjectMeta(
                     name=config["name"],
                     labels=config["labels"],
                 ),
-                data={"shared_config_manager.yaml": yaml.dump(configmap_content)},
+                data={config["configmap_name"]: yaml.dump(configmap_content)},
             )
             try:
                 self.api.replace_namespaced_config_map(

@@ -5,13 +5,14 @@ metadata:
   labels: {}
 spec:
   name: test_other
-  type: git
-  repo: git@github.com:camptocamp/test.git
-  branch: master
-  key: admin1234
-  sub_dir: dir
-  template_engines:
-    - type: shell
-      environment_variables: true
-      data:
-        TEST: test
+  content:
+    type: git
+    repo: git@github.com:camptocamp/test.git
+    branch: master
+    key: admin1234
+    sub_dir: dir
+    template_engines:
+      - type: shell
+        environment_variables: true
+        data:
+          TEST: test
