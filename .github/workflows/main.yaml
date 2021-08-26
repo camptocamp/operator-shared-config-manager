@@ -43,12 +43,16 @@ jobs:
       - uses: azure/setup-helm@v1
       - run: helm lint .
 
-      # Setup k3s/ked
-      - uses: AbsaOSS/k3d-action@v1.4.0
-        with:
-          cluster-name: test-cluster-1
+      # Setup k3s/k3d
+      - run: wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+      - run: >-
+          k3d cluster create test-cluster-1
+          --no-lb
+          --no-hostip
+          --no-rollback
+          --k3s-server-arg "--no-deploy=traefik,servicelb,metrics-server"
       # Import my image
-      - run: k3d image import camptocamp/sharedconfigmanager-operator:latest -c test-cluster-1 --verbose
+      - run: k3d image import camptocamp/sharedconfigmanager-operator:latest --cluster=test-cluster-1 --verbose
 
       - run: helm template test . > template.yaml
       - run: kubectl apply -f template.yaml
