@@ -1,2 +1,2 @@
-c2cciutils==1.1.dev20210921153209
+c2cciutils==1.1.dev20211004142851
 pytest==6.2.5
