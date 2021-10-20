@@ -1,1 +1,2 @@
 templates/*.yaml
+docker/Pipfile.lock
