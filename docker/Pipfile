@@ -9,7 +9,7 @@ kubernetes = "==19.15.0"
 [dev-packages]
 prospector = {version = "==1.5.1", extras = ["with_bandit", "with_mypy"]}
 flake8 = "==3.9.2"
-types-pyyaml = "==6.0.0"
+types-pyyaml = "==6.0.1"
 
 [requires]
 python_version = "3.8"
