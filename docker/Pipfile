@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-kubernetes = "==19.15.0"
+kubernetes = "==20.13.0"
 
 [dev-packages]
 prospector = {version = "==1.5.1", extras = ["with_bandit", "with_mypy"]}
