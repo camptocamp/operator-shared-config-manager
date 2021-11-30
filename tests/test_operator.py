@@ -62,9 +62,9 @@ def test_operator(install_operator):
             pass
 
     assert cm is not None, "No config map found"
-    assert "shared_config_manager.yaml" in cm["data"], cm["data"].keys()
+    assert "test.yaml" in cm["data"], cm["data"].keys()
     assert (
-        cm["data"]["shared_config_manager.yaml"]
+        cm["data"]["test.yaml"]
         == """sources:
   test:
     branch: master
@@ -99,7 +99,7 @@ def test_operator(install_operator):
             time.sleep(1)
             pass
         data = cm["data"]
-        if data["shared_config_manager.yaml"].strip() == "sources: {}":
+        if data["test.yaml"].strip() == "sources: {}":
             success = True
             break
         time.sleep(1)

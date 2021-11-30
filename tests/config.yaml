@@ -8,4 +8,4 @@ spec:
   matchLabels:
     test: test1
   property: sources
-  configmap_name: shared_config_manager.yaml
+  configmapName: test.yaml

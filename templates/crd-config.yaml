@@ -23,7 +23,7 @@ spec:
                     type: string
                 property:
                   type: string
-                configmap_name:
+                configmapName:
                   type: string
   scope: Namespaced
   names:

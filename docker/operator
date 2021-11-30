@@ -114,7 +114,9 @@ class Main:
                     "labels": metadata.get("labels", {}),
                     "match_labels": config_object["spec"].get("matchLabels", {}),
                     "property": config_object["spec"].get("property", "sources"),
-                    "configmap_name": config_object["spec"].get("name", "shared_config_manager.yaml"),
+                    "configmap_name": config_object["spec"].get(
+                        "configmapName", "shared_config_manager.yaml"
+                    ),
                 }
                 self.update(self.configs[f"{metadata['namespace']}.{metadata['name']}"])
             LOG.error("The configs watch exited")
