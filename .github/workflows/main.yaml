@@ -49,7 +49,7 @@ jobs:
       - name: Import my image
         run: k3d image import camptocamp/sharedconfigmanager-operator:latest --cluster=test-cluster
 
-      - run: helm template test --namespace=default . > template.yaml
+      - run: helm template test --namespace=default --set=image.tag=latest . > template.yaml
       - run: kubectl apply -f template.yaml
 
       - run: make tests
