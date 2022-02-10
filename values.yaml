@@ -7,8 +7,6 @@ replicaCount: 1
 image:
   repository: camptocamp/sharedconfigmanager-operator
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
 
 imagePullSecrets: []
 nameOverride: ''
