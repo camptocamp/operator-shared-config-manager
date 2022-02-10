@@ -10,7 +10,9 @@ import yaml
 @pytest.fixture
 def install_operator(scope="session"):
     with open("operator.yaml", "w") as operator_file:
-        subprocess.run(["helm", "template", "test", "."], stdout=operator_file, check=True)
+        subprocess.run(
+            ["helm", "template", "test", "--namespace=default", "."], stdout=operator_file, check=True
+        )
     subprocess.run(["kubectl", "apply", "-f", "operator.yaml"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "source"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "config"], check=True)
