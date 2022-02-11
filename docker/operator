@@ -24,7 +24,7 @@ class Config(TypedDict):
 class Main:
     def __init__(self):
 
-        logging.basicConfig(level=os.environ.get("LOGLEVEL", logging.INFO))
+        logging.basicConfig(level=os.environ.get("LOG_LEVEL", logging.INFO))
 
         self.configs: Dict[str, Config] = {}
         self.lock = threading.Lock()
