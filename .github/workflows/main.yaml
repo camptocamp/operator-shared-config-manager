@@ -50,6 +50,7 @@ jobs:
         run: k3d image import camptocamp/sharedconfigmanager-operator:latest --cluster=test-cluster
 
       - run: helm template test --set=image.tag=latest --set=image.pullPolicy=Never . > template.yaml
+      - run: cat template.yaml
       - run: kubectl apply -f template.yaml
 
       - run: make tests
