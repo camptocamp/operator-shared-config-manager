@@ -2,7 +2,6 @@
 
 import logging
 import os
-import sys
 import threading
 from typing import Any, Dict, TypedDict
 
@@ -44,86 +43,84 @@ class Main:
         watch_configs.start()
 
     def watch_sources(self) -> None:
-        try:
-            for event in self.watch.stream(
-                self.custom_api.list_cluster_custom_object,
-                group="camptocamp.com",
-                version="v1",
-                plural="sharedconfigsources",
-            ):
-                metadata = event["object"]["metadata"]
-
-                LOG.debug(
-                    "Event %s, Service Name: %s, Namespace: %s",
-                    event.get("type"),
-                    metadata.get("name"),
-                    metadata.get("namespace"),
-                )
-
-                labels = metadata.get("labels", {})
-                for config in self.configs.values():
-                    match = True
-                    for label, value in config["match_labels"].items():
-                        if label not in labels:
-                            match = False
-                            break
-                        if labels[label] != value:
-                            match = False
-                            break
-                    if match:
-                        self.update(config)
-            LOG.error("The sources watch exited")
-            sys.exit(1)
-        except:
-            LOG.exception("The error on sources watch")
-            sys.exit(1)
-
-    def watch_configs(self) -> None:
-        try:
-            for event in self.watch.stream(
-                self.custom_api.list_cluster_custom_object,
-                group="camptocamp.com",
-                version="v1",
-                plural="sharedconfigconfigs",
-            ):
-                metadata = event["object"]["metadata"]
-
-                LOG.debug(
-                    "Event %s, Service Name: %s, Namespace: %s",
-                    event.get("type"),
-                    metadata.get("name"),
-                    metadata.get("namespace"),
-                )
-
-                if event["type"] == "DELETED":
-                    self.api.delete_namespaced_config_map(metadata["name"], metadata["namespace"])
-                    del self.configs[f"{metadata['namespace']}.{metadata['name']}"]
-                    continue
-
-                config_object = self.custom_api.get_namespaced_custom_object(
+        while True:
+            try:
+                for event in self.watch.stream(
+                    self.custom_api.list_cluster_custom_object,
                     group="camptocamp.com",
                     version="v1",
-                    namespace=metadata["namespace"],
-                    plural="sharedconfigconfigs",
-                    name=metadata["name"],
-                )
+                    plural="sharedconfigsources",
+                ):
+                    metadata = event["object"]["metadata"]
 
-                self.configs[f"{metadata['namespace']}.{metadata['name']}"] = {
-                    "name": metadata["name"],
-                    "namespace": metadata["namespace"],
-                    "labels": metadata.get("labels", {}),
-                    "match_labels": config_object["spec"].get("matchLabels", {}),
-                    "property": config_object["spec"].get("property", "sources"),
-                    "configmap_name": config_object["spec"].get(
-                        "configmapName", "shared_config_manager.yaml"
-                    ),
-                }
-                self.update(self.configs[f"{metadata['namespace']}.{metadata['name']}"])
-            LOG.error("The configs watch exited")
-            sys.exit(1)
-        except:
-            LOG.exception("The error on sources watch")
-            sys.exit(1)
+                    LOG.debug(
+                        "Event %s, Service Name: %s, Namespace: %s",
+                        event.get("type"),
+                        metadata.get("name"),
+                        metadata.get("namespace"),
+                    )
+
+                    labels = metadata.get("labels", {})
+                    for config in self.configs.values():
+                        match = True
+                        for label, value in config["match_labels"].items():
+                            if label not in labels:
+                                match = False
+                                break
+                            if labels[label] != value:
+                                match = False
+                                break
+                        if match:
+                            self.update(config)
+                LOG.error("The sources watch exited, continuing")
+            except:
+                LOG.exception("The error on sources watch, continuing")
+
+    def watch_configs(self) -> None:
+        while True:
+            try:
+                for event in self.watch.stream(
+                    self.custom_api.list_cluster_custom_object,
+                    group="camptocamp.com",
+                    version="v1",
+                    plural="sharedconfigconfigs",
+                ):
+                    metadata = event["object"]["metadata"]
+
+                    LOG.debug(
+                        "Event %s, Service Name: %s, Namespace: %s",
+                        event.get("type"),
+                        metadata.get("name"),
+                        metadata.get("namespace"),
+                    )
+
+                    if event["type"] == "DELETED":
+                        self.api.delete_namespaced_config_map(metadata["name"], metadata["namespace"])
+                        del self.configs[f"{metadata['namespace']}.{metadata['name']}"]
+                        continue
+
+                    config_object = self.custom_api.get_namespaced_custom_object(
+                        group="camptocamp.com",
+                        version="v1",
+                        namespace=metadata["namespace"],
+                        plural="sharedconfigconfigs",
+                        name=metadata["name"],
+                    )
+
+                    self.configs[f"{metadata['namespace']}.{metadata['name']}"] = {
+                        "name": metadata["name"],
+                        "namespace": metadata["namespace"],
+                        "labels": metadata.get("labels", {}),
+                        "match_labels": config_object["spec"].get("matchLabels", {}),
+                        "property": config_object["spec"].get("property", "sources"),
+                        "configmap_name": config_object["spec"].get(
+                            "configmapName", "shared_config_manager.yaml"
+                        ),
+                    }
+                    self.update(self.configs[f"{metadata['namespace']}.{metadata['name']}"])
+                LOG.error("The configs watch exited, continuing")
+            except:
+                LOG.exception("The error on sources watch, continuing")
 
     def update(self, config: Config) -> None:
         with self.lock:
