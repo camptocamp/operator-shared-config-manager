@@ -10,6 +10,7 @@ pep8:
 pylint:
   disable:
     - bare-except
+    - too-many-nested-blocks
 
 mypy:
   run: true
