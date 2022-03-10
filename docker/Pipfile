@@ -7,7 +7,7 @@ name = "pypi"
 kubernetes = "==23.3.0"
 
 [dev-packages]
-prospector = {version = "==1.7.6", extras = ["with_bandit", "with_mypy"]}
+prospector = {version = "==1.7.7", extras = ["with_bandit", "with_mypy"]}
 types-pyyaml = "==6.0.4"
 
 [requires]
