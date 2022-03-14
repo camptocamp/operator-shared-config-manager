@@ -3,7 +3,7 @@ strictness: veryhigh
 
 max-line-length: 110
 
-pep8:
+pycodestyle:
   disable:
     - E722
 
