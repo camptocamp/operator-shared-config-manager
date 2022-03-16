@@ -6,7 +6,7 @@ metadata:
     {{- include "operator-shared-config-manager.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 3 }}
+  revisionHistoryLimit: {{ .Values.global.revisionHistoryLimit | default 3 }}
   selector:
     matchLabels:
       {{- include "operator-shared-config-manager.selectorLabels" . | nindent 6 }}
@@ -31,7 +31,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.Version }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.global.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

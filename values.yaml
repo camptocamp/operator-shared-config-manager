@@ -2,12 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  image:
+    pullPolicy: IfNotPresent
+  revisionHistoryLimit: 3
+
 replicaCount: 1
-revisionHistoryLimit: 3
 
 image:
   repository: camptocamp/sharedconfigmanager-operator
-  pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 nameOverride: ''
