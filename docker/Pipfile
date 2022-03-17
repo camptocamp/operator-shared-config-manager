@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 kubernetes = "==23.3.0"
+kopf = "==1.35.3"
+pyyaml = "==6.0"
 
 [dev-packages]
 prospector = {version = "==1.7.7", extras = ["with_bandit", "with_mypy"]}

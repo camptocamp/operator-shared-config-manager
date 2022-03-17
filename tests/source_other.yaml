@@ -4,7 +4,7 @@ metadata:
   name: test1-other
   labels: {}
 spec:
-  name: test_other
+  name: test-other
   content:
     type: git
     repo: git@github.com:camptocamp/test.git

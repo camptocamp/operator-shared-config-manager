@@ -44,6 +44,8 @@ def install_operator(scope="session"):
 
 
 def test_operator(install_operator):
+    del install_operator
+
     # Initialise the source and the config
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "tests/source.yaml"], check=True)
@@ -61,9 +63,8 @@ def test_operator(install_operator):
                 ).stdout
             )
             break
-        except:
+        except subprocess.CalledProcessError:
             time.sleep(1)
-            pass
 
     assert cm is not None, "No config map found"
     assert "test.yaml" in cm["data"], cm["data"].keys()

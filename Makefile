@@ -9,7 +9,7 @@ build-test:
 
 .PHONY: prospector
 prospector: build-test
-	docker run camptocamp/sharedconfigmanager-operator-test prospector --output=pylint operator
+	docker run camptocamp/sharedconfigmanager-operator-test prospector --output=pylint operator.py
 
 .PHONY: tests
 tests:
