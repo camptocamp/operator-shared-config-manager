@@ -25,6 +25,8 @@ spec:
                   type: string
                 configmapName:
                   type: string
+            status:
+              x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced
   names:
     plural: sharedconfigconfigs

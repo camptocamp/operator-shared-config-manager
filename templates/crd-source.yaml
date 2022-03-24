@@ -22,6 +22,8 @@ spec:
                 content:
                   type: object
                   x-kubernetes-preserve-unknown-fields: True
+            status:
+              x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced
   names:
     plural: sharedconfigsources
