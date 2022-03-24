@@ -1,10 +1,11 @@
-apiVersion: camptocamp.com/v1
+apiVersion: camptocamp.com/v2
 kind: SharedConfigConfig
 metadata:
   name: test2
   labels:
     test: test2
 spec:
+  environment: test
   matchLabels:
     test: test1
   property: sources

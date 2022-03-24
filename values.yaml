@@ -16,6 +16,11 @@ imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
 
+crd: true
+clusterrole: true
+clusterrolebinding: true
+deployment: true
+
 serviceAccount:
   # Annotations to add to the service account
   annotations: {}

@@ -13,6 +13,7 @@ import yaml
 
 LOCK: asyncio.Lock
 
+ENVIRONMENT: str = os.environ["ENVIRONMENT"]
 
 sharedconfigconfigs: Dict[str, kopf._cogs.structs.bodies.Body] = {}
 sharedconfigsources: Dict[str, kopf._cogs.structs.bodies.Body] = {}
@@ -25,26 +26,31 @@ async def startup(settings: kopf.OperatorSettings, **_) -> None:
     LOCK = asyncio.Lock()
 
 
-@kopf.on.resume("camptocamp.com", "v1", "sharedconfigconfigs")
-@kopf.on.create("camptocamp.com", "v1", "sharedconfigconfigs")
-@kopf.on.update("camptocamp.com", "v1", "sharedconfigconfigs")
+@kopf.on.resume("camptocamp.com", "v2", "sharedconfigconfigs")
+@kopf.on.create("camptocamp.com", "v2", "sharedconfigconfigs")
+@kopf.on.update("camptocamp.com", "v2", "sharedconfigconfigs")
 async def config_kopf(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
+    spec: kopf._cogs.structs.bodies.Spec,
     logger: kopf._core.actions.execution.Logger,
     **_,
 ) -> None:
+    if spec["environment"] != ENVIRONMENT:
+        return
     sharedconfigconfigs[meta["name"]] = body
     await update_config(body, logger)
 
 
-@kopf.on.delete("camptocamp.com", "v1", "sharedconfigconfigs")
+@kopf.on.delete("camptocamp.com", "v2", "sharedconfigconfigs")
 async def delete_config(
     meta: kopf._cogs.structs.bodies.Meta,
     spec: kopf._cogs.structs.bodies.Spec,
     logger: kopf._core.actions.execution.Logger,
     **_,
 ) -> None:
+    if spec["environment"] != ENVIRONMENT:
+        return
     if meta["name"] in sharedconfigconfigs:
         del sharedconfigconfigs[meta["name"]]
     logger.info(
@@ -55,26 +61,32 @@ async def delete_config(
     )
 
 
-@kopf.on.resume("camptocamp.com", "v1", "sharedconfigsources")
-@kopf.on.create("camptocamp.com", "v1", "sharedconfigsources")
-@kopf.on.update("camptocamp.com", "v1", "sharedconfigsources")
+@kopf.on.resume("camptocamp.com", "v2", "sharedconfigsources")
+@kopf.on.create("camptocamp.com", "v2", "sharedconfigsources")
+@kopf.on.update("camptocamp.com", "v2", "sharedconfigsources")
 async def source_kopf(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
+    spec: kopf._cogs.structs.bodies.Spec,
     logger: kopf._core.actions.execution.Logger,
     **_,
 ) -> None:
+    if spec["environment"] != ENVIRONMENT:
+        return
     sharedconfigsources[meta["name"]] = body
     await update_source(body, logger)
 
 
-@kopf.on.delete("camptocamp.com", "v1", "sharedconfigsources")
+@kopf.on.delete("camptocamp.com", "v2", "sharedconfigsources")
 async def delete_source(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
+    spec: kopf._cogs.structs.bodies.Spec,
     logger: kopf._core.actions.execution.Logger,
     **_,
 ) -> None:
+    if spec["environment"] != ENVIRONMENT:
+        return
     if meta["name"] in sharedconfigsources:
         del sharedconfigsources[meta["name"]]
     await update_source(body, logger)

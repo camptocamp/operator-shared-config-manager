@@ -1,10 +1,32 @@
-apiVersion: camptocamp.com/v1
+apiVersion: camptocamp.com/v2
 kind: SharedConfigSource
 metadata:
   name: test1-other
   labels: {}
 spec:
+  environment: test
   name: test-other
+  content:
+    type: git
+    repo: git@github.com:camptocamp/test.git
+    branch: master
+    key: admin1234
+    sub_dir: dir
+    template_engines:
+      - type: shell
+        environment_variables: true
+        data:
+          TEST: test
+---
+apiVersion: camptocamp.com/v2
+kind: SharedConfigSource
+metadata:
+  name: test1-other2
+  labels:
+    test: test1
+spec:
+  environment: other
+  name: test
   content:
     type: git
     repo: git@github.com:camptocamp/test.git
