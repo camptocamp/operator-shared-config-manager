@@ -11,7 +11,15 @@ import yaml
 def install_operator(scope="session"):
     with open("operator.yaml", "w") as operator_file:
         subprocess.run(
-            ["helm", "template", "test", "--namespace=default", "--set=image.tag=latest", "."],
+            [
+                "helm",
+                "template",
+                "test",
+                "--namespace=default",
+                "--set=image.tag=latest",
+                "--set=environment=test",
+                ".",
+            ],
             stdout=operator_file,
             check=True,
         )

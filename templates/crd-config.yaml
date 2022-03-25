@@ -1,3 +1,4 @@
+{{- if .Values.crd }}
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -7,7 +8,7 @@ metadata:
 spec:
   group: camptocamp.com
   versions:
-    - name: v1
+    - name: v2
       served: true
       storage: true
       schema:
@@ -16,7 +17,14 @@ spec:
           properties:
             spec:
               type: object
+              required:
+                - environment
+                - matchLabels
+                - property
+                - configmapName
               properties:
+                environment:
+                  type: string
                 matchLabels:
                   type: object
                   additionalProperties:
@@ -34,3 +42,4 @@ spec:
     kind: SharedConfigConfig
     shortNames:
       - scc
+{{- end }}
