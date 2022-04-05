@@ -33,7 +33,7 @@ async def config_kopf(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
     spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._core.actions.execution.Logger,
+    logger: kopf._cogs.helpers.typedefs.Logger,
     **_,
 ) -> None:
     if spec["environment"] != ENVIRONMENT:
@@ -46,7 +46,7 @@ async def config_kopf(
 async def delete_config(
     meta: kopf._cogs.structs.bodies.Meta,
     spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._core.actions.execution.Logger,
+    logger: kopf._cogs.helpers.typedefs.Logger,
     **_,
 ) -> None:
     if spec["environment"] != ENVIRONMENT:
@@ -68,7 +68,7 @@ async def source_kopf(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
     spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._core.actions.execution.Logger,
+    logger: kopf._cogs.helpers.typedefs.Logger,
     **_,
 ) -> None:
     if spec["environment"] != ENVIRONMENT:
@@ -82,7 +82,7 @@ async def delete_source(
     body: kopf._cogs.structs.bodies.Body,
     meta: kopf._cogs.structs.bodies.Meta,
     spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._core.actions.execution.Logger,
+    logger: kopf._cogs.helpers.typedefs.Logger,
     **_,
 ) -> None:
     if spec["environment"] != ENVIRONMENT:
@@ -105,7 +105,7 @@ def match(source: kopf._cogs.structs.bodies.Body, config: kopf._cogs.structs.bod
 
 
 async def update_source(
-    source: kopf._cogs.structs.bodies.Body, logger: kopf._core.actions.execution.Logger
+    source: kopf._cogs.structs.bodies.Body, logger: kopf._cogs.helpers.typedefs.Logger
 ) -> None:
     for config in sharedconfigconfigs.values():
         if match(source, config):
@@ -113,7 +113,7 @@ async def update_source(
 
 
 async def update_config(
-    config: kopf._cogs.structs.bodies.Body, logger: kopf._core.actions.execution.Logger
+    config: kopf._cogs.structs.bodies.Body, logger: kopf._cogs.helpers.typedefs.Logger
 ) -> None:
     global LOCK  # pylint: disable=global-variable-not-assigned
     async with LOCK:
