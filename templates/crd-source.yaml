@@ -31,6 +31,23 @@ spec:
                   x-kubernetes-preserve-unknown-fields: True
             status:
               x-kubernetes-preserve-unknown-fields: true
+    - name: v1
+      served: true
+      storage: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                name:
+                  type: string
+                content:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: True
+            status:
+              x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced
   names:
     plural: sharedconfigsources
