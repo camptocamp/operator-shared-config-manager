@@ -34,6 +34,7 @@ spec:
     - name: v1
       served: true
       storage: false
+      deprecated: true
       schema:
         openAPIV3Schema:
           type: object
