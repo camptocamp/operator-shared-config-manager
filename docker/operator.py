@@ -22,6 +22,10 @@ sharedconfigsources: Dict[str, kopf._cogs.structs.bodies.Body] = {}
 @kopf.on.startup()
 async def startup(settings: kopf.OperatorSettings, **_) -> None:
     settings.posting.level = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
+    if "KOPF_SERVER_TIMEOUT" in os.environ:
+        settings.watching.server_timeout = int(os.environ["KOPF_SERVER_TIMEOUT"])
+    if "KOPF_CLIENT_TIMEOUT" in os.environ:
+        settings.watching.client_timeout = int(os.environ["KOPF_CLIENT_TIMEOUT"])
     global LOCK  # pylint: disable=global-statement
     LOCK = asyncio.Lock()
 
