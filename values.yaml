@@ -16,8 +16,6 @@ imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
 
-environment: to be defined
-
 crd: true
 clusterrole: true
 clusterrolebinding: true

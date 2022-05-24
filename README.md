@@ -1,7 +1,7 @@
 # Shared config operator
 
 This operator can be used to build a ConfigMap that contains one yaml file, with part of config
-that can com from other namespaces.
+that can come from other namespaces.
 
 ## Install
 
