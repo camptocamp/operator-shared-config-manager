@@ -5,6 +5,7 @@ checks:
     codeql.yaml: False
 
 publish:
+  pypi: false
   docker:
     images:
       - name: camptocamp/sharedconfigmanager-operator
