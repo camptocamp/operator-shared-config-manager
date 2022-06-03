@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as runtime
+FROM ubuntu:22.04 as runtime
 
 RUN apt-get update && \
     apt-get --yes --no-install-recommends install python3-pip && \
