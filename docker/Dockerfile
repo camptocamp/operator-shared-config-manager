@@ -1,27 +1,46 @@
-FROM ubuntu:22.04 as runtime
+FROM ubuntu:22.04 as base-all
+LABEL maintainer Camptocamp "info@camptocamp.com"
+SHELL ["/bin/bash", "-o", "pipefail", "-cux"]
 
-RUN apt-get update \
-    && apt-get --yes --no-install-recommends install python3-pip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache,sharing=locked \
+    apt-get update \
+    && apt-get upgrade --assume-yes \
+    && apt-get install --assume-yes --no-install-recommends python3-pip
 
-COPY requirements.txt /tmp/
-RUN python3 -m pip install --disable-pip-version-check --no-cache-dir --requirement=/tmp/requirements.txt
+# Used to convert the locked packages by poetry to pip requirements format
+# We don't directly use `poetry install` because it force to use a virtual environment.
+FROM base-all as poetry
 
-COPY Pipfile Pipfile.lock /tmp/
-RUN cd /tmp && pipenv sync --system --clear \
-    && rm --recursive --force /root/.cache/*
+# Install Poetry
+WORKDIR /tmp
+COPY requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache \
+    python3 -m pip install --disable-pip-version-check --requirement=requirements.txt
+
+# Do the conversion
+COPY poetry.lock pyproject.toml ./
+RUN poetry export --output=requirements.txt \
+    && poetry export --dev --output=requirements-dev.txt
+
+# Base, the biggest thing is to install the Python packages
+FROM base-all as runtime
+
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=bind,from=poetry,source=/tmp,target=/poetry \
+    python3 -m pip install --disable-pip-version-check --no-deps --requirement=/poetry/requirements.txt
+
+WORKDIR /app
 
 FROM runtime as test
 
-RUN cd /tmp && pipenv sync --system --clear --dev \
-    && rm --recursive --force /root/.cache/*
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=bind,from=poetry,source=/tmp,target=/poetry \
+    python3 -m pip install --disable-pip-version-check --no-deps --requirement=/poetry/requirements-dev.txt
 
-WORKDIR /app
 COPY * ./
 
 FROM runtime as default
 
-WORKDIR /app
 COPY operator.py ./
 CMD ["kopf", "run", "operator.py"]
