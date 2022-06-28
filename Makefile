@@ -18,7 +18,7 @@ build-test: ## Build the Docker image used to run the tests
 
 .PHONY: prospector
 prospector: build-test ## Run the prospector checks
-	docker run --rm camptocamp/sharedconfigmanager-operator-test prospector --output=pylint operator.py
+	docker run --rm camptocamp/sharedconfigmanager-operator-test prospector --output=pylint shared_config_manager_operator.py
 
 .PHONY: tests
 tests: ## Run the tests
