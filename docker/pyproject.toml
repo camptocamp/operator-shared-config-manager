@@ -7,9 +7,9 @@ authors = []
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 kubernetes = "23.6.0"
-kopf = "1.35.4"
+kopf = "1.35.5"
 pyyaml = "6.0"
 
 [tool.poetry.dev-dependencies]
 prospector = {version = "1.7.7", extras = ["with_bandit", "with_mypy"]}
-types-pyyaml = "6.0.7"
+types-pyyaml = "6.0.9"

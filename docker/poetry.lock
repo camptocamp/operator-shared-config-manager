@@ -253,7 +253,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "kopf"
-version = "1.35.4"
+version = "1.35.5"
 description = "Kubernetes Operator Pythonic Framework (Kopf)"
 category = "main"
 optional = false
@@ -698,7 +698,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.7"
+version = "6.0.9"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -761,7 +761,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "2a49e9d7b084dbf30abd94ab85e7501fcbdeb65c1287b83bb3132fce18aa1b63"
+content-hash = "fb19c6738488013a0cfbc16f95bf2410a537645a46b34a503c95d9cf40b99ba7"
 
 [metadata.files]
 aiohttp = [
@@ -980,8 +980,8 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 kopf = [
-    {file = "kopf-1.35.4-py3-none-any.whl", hash = "sha256:852c4a3bb303962e85e1a077f0bd5e889295f98fdc58a1b8721938d2a65faae6"},
-    {file = "kopf-1.35.4.tar.gz", hash = "sha256:0fbf5c7ef70b3fbbffc8efbcd5d13a736db8b8ddbab6bd680a9128529b57bdaf"},
+    {file = "kopf-1.35.5-py3-none-any.whl", hash = "sha256:cec72b9730e1ecccee06ec122c92fda4905b177a4af9f7ab526f91fbc3bab048"},
+    {file = "kopf-1.35.5.tar.gz", hash = "sha256:2d88778cc1be474a7bb0eb764f5f9e73794172bbe7917b720e109f1c7992ee3f"},
 ]
 kubernetes = [
     {file = "kubernetes-23.6.0-py2.py3-none-any.whl", hash = "sha256:dd58e286a53071bc8e32041f07f3c2236b3ed8ca5b9f57794a5077358f7ccb06"},
@@ -1291,8 +1291,8 @@ tomlkit = [
     {file = "tomlkit-0.11.0.tar.gz", hash = "sha256:71ceb10c0eefd8b8f11fe34e8a51ad07812cb1dc3de23247425fbc9ddc47b9dd"},
 ]
 types-pyyaml = [
-    {file = "types-PyYAML-6.0.7.tar.gz", hash = "sha256:59480cf44595d836aaae050f35e3c39f197f3a833679ef3978d97aa9f2fb7def"},
-    {file = "types_PyYAML-6.0.7-py3-none-any.whl", hash = "sha256:7b273a34f32af9910cf9405728c9d2ad3afc4be63e4048091a1a73d76681fe67"},
+    {file = "types-PyYAML-6.0.9.tar.gz", hash = "sha256:33ae75c84b8f61fddf0c63e9c7e557db9db1694ad3c2ee8628ec5efebb5a5e9b"},
+    {file = "types_PyYAML-6.0.9-py3-none-any.whl", hash = "sha256:b738e9ef120da0af8c235ba49d3b72510f56ef9bcc308fc8e7357100ff122284"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
