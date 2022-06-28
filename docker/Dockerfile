@@ -42,5 +42,5 @@ COPY * ./
 
 FROM runtime as default
 
-COPY operator.py ./
-CMD ["kopf", "run", "operator.py"]
+COPY shared_config_manager_operator.py ./
+CMD ["kopf", "run", "shared_config_manager_operator.py"]
