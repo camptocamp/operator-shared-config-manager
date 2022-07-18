@@ -698,7 +698,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.9"
+version = "6.0.10"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -761,7 +761,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "06a2ad65a18dbe75d894a84395704977b458827c00fe9d179a9d9570a804b15e"
+content-hash = "619276b536ff066b951c1adf067e2141ca615d88068ad342d3faeb42513e4471"
 
 [metadata.files]
 aiohttp = [
@@ -1291,8 +1291,8 @@ tomlkit = [
     {file = "tomlkit-0.11.0.tar.gz", hash = "sha256:71ceb10c0eefd8b8f11fe34e8a51ad07812cb1dc3de23247425fbc9ddc47b9dd"},
 ]
 types-pyyaml = [
-    {file = "types-PyYAML-6.0.9.tar.gz", hash = "sha256:33ae75c84b8f61fddf0c63e9c7e557db9db1694ad3c2ee8628ec5efebb5a5e9b"},
-    {file = "types_PyYAML-6.0.9-py3-none-any.whl", hash = "sha256:b738e9ef120da0af8c235ba49d3b72510f56ef9bcc308fc8e7357100ff122284"},
+    {file = "types-PyYAML-6.0.10.tar.gz", hash = "sha256:a1676caeb098096833fe2f1472e7ea8debf7663222964fa90545cfaafebf3385"},
+    {file = "types_PyYAML-6.0.10-py3-none-any.whl", hash = "sha256:18985a382c93fb12187daae6f57ce7787e3651cd590291c907d3e757919689ff"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
