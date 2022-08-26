@@ -20,6 +20,10 @@ build-test: ## Build the Docker image used to run the tests
 prospector: build-test ## Run the prospector checks
 	docker run --rm camptocamp/sharedconfigmanager-operator-test prospector --output=pylint shared_config_manager_operator.py
 
+.PHONY: prospector-fast
+prospector-fast: ## Run the prospector checks without build the Docker image
+	docker run --rm camptocamp/sharedconfigmanager-operator-test prospector --output=pylint shared_config_manager_operator.py
+
 .PHONY: tests
 tests: ## Run the tests
 	pytest --verbose
