@@ -54,7 +54,7 @@ def install_operator(scope="session"):
 def test_operator(install_operator):
     del install_operator
 
-    # Initialise the source and the config
+    # Initialize the source and the config
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "tests/source.yaml"], check=True)
     subprocess.run(["kubectl", "apply", "-f", "tests/source_other.yaml"], check=True)
