@@ -11,5 +11,5 @@ kopf = "1.35.6"
 pyyaml = "6.0"
 
 [tool.poetry.dev-dependencies]
-prospector = {version = "1.7.7", extras = ["with_bandit", "with_mypy"]}
+prospector = { version = "1.7.7", extras = ["with_bandit", "with_mypy"] }
 types-pyyaml = "6.0.11"
