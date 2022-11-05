@@ -253,7 +253,7 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "kopf"
-version = "1.35.6"
+version = "1.36.0"
 description = "Kubernetes Operator Pythonic Framework (Kopf)"
 category = "main"
 optional = false
@@ -270,6 +270,7 @@ typing-extensions = "*"
 [package.extras]
 dev = ["certbuilder", "certvalidator", "oscrypto", "pyngrok"]
 full-auth = ["kubernetes", "pykube-ng"]
+uvloop = ["uvloop"]
 
 [[package]]
 name = "kubernetes"
@@ -783,7 +784,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "b5ef98ae2c3086a777c749d5175613b94a81639efaba9584392a97ab8d9f3484"
+content-hash = "100927134cb25bf0fa6ed3e0fb0f0097f20fdffb5e4ad9fab6fe96a6fe2d673a"
 
 [metadata.files]
 aiohttp = [
@@ -1017,8 +1018,8 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 kopf = [
-    {file = "kopf-1.35.6-py3-none-any.whl", hash = "sha256:152dfa5b964cb5f77be00f9b18360f12fe0b2c032d7b5d7e95f4690558ab9ba7"},
-    {file = "kopf-1.35.6.tar.gz", hash = "sha256:b3f812072da7c16aa20e3807d9a35bb9d65df4423a68b039c6424f4e68014b82"},
+    {file = "kopf-1.36.0-py3-none-any.whl", hash = "sha256:c856133c82475b3643c01962dd8fdc95b42faf5e274d891675a6c3e685264565"},
+    {file = "kopf-1.36.0.tar.gz", hash = "sha256:b618c0cd19398681dd4a0a263a0a265b5267a05064a5d0c69025d0ed710bd0af"},
 ]
 kubernetes = [
     {file = "kubernetes-25.3.0-py2.py3-none-any.whl", hash = "sha256:eb42333dad0bb5caf4e66460c6a4a1a36f0f057a040f35018f6c05a699baed86"},
