@@ -17,13 +17,14 @@ def install_operator(scope="session"):
                 "test",
                 "--namespace=default",
                 "--set=image.tag=latest",
+                '--set-json=args=["--debug"]',
                 "--set=env.ENVIRONMENT=test",
                 ".",
             ],
             stdout=operator_file,
             check=True,
         )
-    subprocess.run(["kubectl", "apply", "-f", "operator.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=operator.yaml"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "source"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "config"], check=True)
 
@@ -47,7 +48,7 @@ def install_operator(scope="session"):
     yield
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=default"], check=True)
     # We should have the pod to be able to extract the logs
-    # subprocess.run(["kubectl", "delete", "-f", "operator.yaml"], check=True)
+    # subprocess.run(["kubectl", "delete", "--filename=operator.yaml"], check=True)
     os.remove("operator.yaml")
 
 
@@ -56,10 +57,10 @@ def test_operator(install_operator):
 
     # Initialize the source and the config
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "tests/source.yaml"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "tests/source_other.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/source.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_other.yaml"], check=True)
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
-    subprocess.run(["kubectl", "apply", "-f", "tests/config.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/config.yaml"], check=True)
 
     # Wait that the ConfigMap is correctly created
     cm = None
@@ -67,7 +68,9 @@ def test_operator(install_operator):
         try:
             cm = json.loads(
                 subprocess.run(
-                    ["kubectl", "get", "cm", "test2", "--output=json"], check=True, stdout=subprocess.PIPE
+                    ["kubectl", "get", "configmap", "test2", "--output=json"],
+                    check=True,
+                    stdout=subprocess.PIPE,
                 ).stdout
             )
             break
@@ -95,7 +98,7 @@ def test_operator(install_operator):
 
     # Remove the source
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "delete", "-f", "tests/source.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source.yaml"], check=True)
 
     # Wait that the ConfigMap is correctly updated
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
@@ -105,7 +108,9 @@ def test_operator(install_operator):
         try:
             cm = json.loads(
                 subprocess.run(
-                    ["kubectl", "get", "cm", "test2", "--output=json"], check=True, stdout=subprocess.PIPE
+                    ["kubectl", "get", "configmap", "test2", "--output=json"],
+                    check=True,
+                    stdout=subprocess.PIPE,
                 ).stdout
             )
         except:
@@ -120,14 +125,16 @@ def test_operator(install_operator):
     assert success, data
 
     # Remove the config
-    subprocess.run(["kubectl", "delete", "-f", "tests/config.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/config.yaml"], check=True)
     # Wait that the ConfigMap is correctly deleted
     success = False
     for _ in range(10):
         try:
             cm = json.loads(
                 subprocess.run(
-                    ["kubectl", "get", "cm", "test2", "--output=json"], check=True, stdout=subprocess.PIPE
+                    ["kubectl", "get", "configmap", "test2", "--output=json"],
+                    check=True,
+                    stdout=subprocess.PIPE,
                 ).stdout
             )
             time.sleep(1)
@@ -138,4 +145,4 @@ def test_operator(install_operator):
 
     # Remove the other source, to be cleaned
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "delete", "-f", "tests/source_other.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_other.yaml"], check=True)

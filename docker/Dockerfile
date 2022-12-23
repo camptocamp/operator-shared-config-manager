@@ -43,4 +43,4 @@ COPY * ./
 FROM runtime as default
 
 COPY shared_config_manager_operator.py ./
-CMD ["kopf", "run", "shared_config_manager_operator.py"]
+ENTRYPOINT [ "kopf", "run", "shared_config_manager_operator.py"]

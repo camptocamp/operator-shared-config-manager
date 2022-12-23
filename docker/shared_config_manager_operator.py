@@ -6,8 +6,6 @@ import os
 from typing import Any, Dict
 
 import kopf
-import kopf._cogs.structs.bodies
-import kopf._core.actions.execution
 import kubernetes  # type: ignore
 import yaml
 
@@ -15,12 +13,12 @@ LOCK: asyncio.Lock
 
 ENVIRONMENT: str = os.environ["ENVIRONMENT"]
 
-sharedconfigconfigs: Dict[str, kopf._cogs.structs.bodies.Body] = {}
-sharedconfigsources: Dict[str, kopf._cogs.structs.bodies.Body] = {}
+sharedconfigconfigs: Dict[str, kopf.Body] = {}
+sharedconfigsources: Dict[str, kopf.Body] = {}
 
 
 @kopf.on.startup()
-async def startup(settings: kopf.OperatorSettings, **_) -> None:
+async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> None:
     settings.posting.level = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
     if "KOPF_SERVER_TIMEOUT" in os.environ:
         settings.watching.server_timeout = int(os.environ["KOPF_SERVER_TIMEOUT"])
@@ -28,33 +26,19 @@ async def startup(settings: kopf.OperatorSettings, **_) -> None:
         settings.watching.client_timeout = int(os.environ["KOPF_CLIENT_TIMEOUT"])
     global LOCK  # pylint: disable=global-statement
     LOCK = asyncio.Lock()
+    logger.info("Startup in environment %s", ENVIRONMENT)
 
 
-@kopf.on.resume("camptocamp.com", "v2", "sharedconfigconfigs")
-@kopf.on.create("camptocamp.com", "v2", "sharedconfigconfigs")
-@kopf.on.update("camptocamp.com", "v2", "sharedconfigconfigs")
-async def config_kopf(
-    body: kopf._cogs.structs.bodies.Body,
-    meta: kopf._cogs.structs.bodies.Meta,
-    spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._cogs.helpers.typedefs.Logger,
-    **_,
-) -> None:
-    if spec["environment"] != ENVIRONMENT:
-        return
+@kopf.on.resume("camptocamp.com", "v2", "sharedconfigconfigs", field="spec.environment", value=ENVIRONMENT)
+@kopf.on.create("camptocamp.com", "v2", "sharedconfigconfigs", field="spec.environment", value=ENVIRONMENT)
+@kopf.on.update("camptocamp.com", "v2", "sharedconfigconfigs", field="spec.environment", value=ENVIRONMENT)
+async def config_kopf(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_) -> None:
     sharedconfigconfigs[meta["name"]] = body
     await update_config(body, logger)
 
 
-@kopf.on.delete("camptocamp.com", "v2", "sharedconfigconfigs")
-async def delete_config(
-    meta: kopf._cogs.structs.bodies.Meta,
-    spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._cogs.helpers.typedefs.Logger,
-    **_,
-) -> None:
-    if spec["environment"] != ENVIRONMENT:
-        return
+@kopf.on.delete("camptocamp.com", "v2", "sharedconfigconfigs", field="spec.environment", value=ENVIRONMENT)
+async def delete_config(meta: kopf.Meta, spec: kopf.Spec, logger: kopf.Logger, **_) -> None:
     if meta["name"] in sharedconfigconfigs:
         del sharedconfigconfigs[meta["name"]]
     logger.info(
@@ -65,38 +49,24 @@ async def delete_config(
     )
 
 
-@kopf.on.resume("camptocamp.com", "v2", "sharedconfigsources")
-@kopf.on.create("camptocamp.com", "v2", "sharedconfigsources")
-@kopf.on.update("camptocamp.com", "v2", "sharedconfigsources")
-async def source_kopf(
-    body: kopf._cogs.structs.bodies.Body,
-    meta: kopf._cogs.structs.bodies.Meta,
-    spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._cogs.helpers.typedefs.Logger,
-    **_,
-) -> None:
-    if spec["environment"] != ENVIRONMENT:
-        return
+@kopf.on.resume("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=ENVIRONMENT)
+@kopf.on.create("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=ENVIRONMENT)
+@kopf.on.update("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=ENVIRONMENT)
+async def source_kopf(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_) -> None:
     sharedconfigsources[meta["name"]] = body
     await update_source(body, logger)
 
 
-@kopf.on.delete("camptocamp.com", "v2", "sharedconfigsources")
-async def delete_source(
-    body: kopf._cogs.structs.bodies.Body,
-    meta: kopf._cogs.structs.bodies.Meta,
-    spec: kopf._cogs.structs.bodies.Spec,
-    logger: kopf._cogs.helpers.typedefs.Logger,
-    **_,
-) -> None:
-    if spec["environment"] != ENVIRONMENT:
-        return
+@kopf.on.delete("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=ENVIRONMENT)
+async def delete_source(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_) -> None:
     if meta["name"] in sharedconfigsources:
         del sharedconfigsources[meta["name"]]
+    else:
+        kopf.info(body, reason="NotFound", message="Source not found")
     await update_source(body, logger)
 
 
-def match(source: kopf._cogs.structs.bodies.Body, config: kopf._cogs.structs.bodies.Body) -> bool:
+def match(source: kopf.Body, config: kopf.Body) -> bool:
     """
     Check if the source labels matches the config matchLables.
     """
@@ -108,17 +78,13 @@ def match(source: kopf._cogs.structs.bodies.Body, config: kopf._cogs.structs.bod
     return True
 
 
-async def update_source(
-    source: kopf._cogs.structs.bodies.Body, logger: kopf._cogs.helpers.typedefs.Logger
-) -> None:
+async def update_source(source: kopf.Body, logger: kopf.Logger) -> None:
     for config in sharedconfigconfigs.values():
         if match(source, config):
             await update_config(config, logger)
 
 
-async def update_config(
-    config: kopf._cogs.structs.bodies.Body, logger: kopf._cogs.helpers.typedefs.Logger
-) -> None:
+async def update_config(config: kopf.Body, logger: kopf.Logger) -> None:
     global LOCK  # pylint: disable=global-variable-not-assigned
     async with LOCK:
         configmap_content: Dict[str, Any] = {config.spec["property"]: {}}
@@ -126,13 +92,13 @@ async def update_config(
             if match(source, config):
                 kopf.event(
                     source,
-                    type="SharedConfigManager",
+                    type="SharedConfigOperator",
                     reason="Used",
                     message="Used by SharedConfigConfig " f"{config.meta.namespace}:{config.meta.name}",
                 )
                 kopf.event(
                     config,
-                    type="SharedConfigManager",
+                    type="SharedConfigOperator",
                     reason="Use",
                     message=f"Use SharedConfigSource {source.meta.namespace}:{source.meta.name}",
                 )
