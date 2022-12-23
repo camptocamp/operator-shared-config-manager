@@ -21,6 +21,9 @@ clusterrole: true
 clusterrolebinding: true
 deployment: true
 
+args: []
+env: {}
+
 serviceAccount:
   # Annotations to add to the service account
   annotations: {}
