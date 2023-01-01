@@ -839,22 +839,23 @@ files = [
 
 [[package]]
 name = "prospector"
-version = "1.8.2"
-description = ""
+version = "1.8.3"
+description = "Prospector is a tool to analyse Python code by aggregating the result of other tools."
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "prospector-1.8.2-py3-none-any.whl", hash = "sha256:3afabfce9b013796dc83edba86e83d84f6069c43da9ec5bf18b88e10e0facf05"},
-    {file = "prospector-1.8.2.tar.gz", hash = "sha256:931003914c2df58aebf3c026c3c2f1c9d1c3eb6115599dfecd06e99516486f88"},
+    {file = "prospector-1.8.3-py3-none-any.whl", hash = "sha256:75d65a6f40682f25ea6f69dc12add9f921dbafdd307bf27aa099728f89d77b67"},
+    {file = "prospector-1.8.3.tar.gz", hash = "sha256:b674b619e1b9923eb750aea4ccda6254d2ebaca11eb1c43fbddf019a7cfcc5cb"},
 ]
 
 [package.dependencies]
-bandit = {version = ">=1.5.1", optional = true, markers = "extra == \"with-bandit\" or extra == \"with-everything\""}
+bandit = {version = ">=1.5.1", optional = true, markers = "extra == \"with_bandit\" or extra == \"with_everything\""}
 dodgy = ">=0.2.1,<0.3.0"
+flake8 = "<6.0.0"
 GitPython = ">=3.1.27,<4.0.0"
 mccabe = ">=0.7.0,<0.8.0"
-mypy = {version = ">=0.600", optional = true, markers = "extra == \"with-mypy\" or extra == \"with-everything\""}
+mypy = {version = ">=0.600", optional = true, markers = "extra == \"with_mypy\" or extra == \"with_everything\""}
 pep8-naming = ">=0.3.3,<=0.10.0"
 pycodestyle = ">=2.9.0"
 pydocstyle = ">=2.0.0"
@@ -1544,4 +1545,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "ce5806be585425422ef5fe86d6da65a948166ea18057ac3cafff0fe40e0ff74d"
+content-hash = "ba652c5aa23c8485e49331ff6826b631eb749e7b440e86e0b1c8a72ee56051ae"
