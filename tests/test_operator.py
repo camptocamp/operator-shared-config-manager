@@ -18,7 +18,7 @@ def install_operator(scope="session"):
                 "--namespace=default",
                 "--set=image.tag=latest",
                 '--set-json=args=["--debug"]',
-                "--set=env.ENVIRONMENT=test",
+                "--set=env.ENVIRONMENT=test,env.INTERVAL=0.2",
                 ".",
             ],
             stdout=operator_file,
