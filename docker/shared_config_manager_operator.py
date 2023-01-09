@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import kopf
 import kubernetes  # type: ignore
@@ -74,13 +74,17 @@ async def _fill_changed_configs(
     value=_ENVIRONMENT,
     interval=_INTERVAL,
 )
-async def timer(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs):
+async def timer(body: kopf.Body, meta: kopf.Meta, status: kopf.Status, logger: kopf.Logger, **kwargs):
     logger.info("Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned
+    result = None
     async with _LOCK:
         if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
-            await _update_config(body, logger=logger, **kwargs)
+            result = await _update_config(
+                body, status=status.get("timer/spec.environment", {}), logger=logger, **kwargs
+            )
             _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
+    return result
 
 
 def _match(source: kopf.Body, config: kopf.Body) -> bool:
@@ -97,11 +101,13 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 
 async def _update_config(
     config: kopf.Body,
+    status: Dict[str, Any],
     sharedconfigsources: kopf.Index,  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
     **_,
-) -> None:
+) -> Dict[str, Any]:
     configmap_content: Dict[str, Any] = {config.spec["property"]: {}}
+    sources: Set[Tuple[Optional[str], Optional[str], Optional[str]]] = set()
     for source in sharedconfigsources.get(None, []):
         assert isinstance(source, kopf.Body)
         if _match(source, config):
@@ -126,36 +132,47 @@ async def _update_config(
                 message=f"Use SharedConfigSource {source.meta.namespace}:{source.meta.name}",
             )
 
+            sources.add((source.meta.namespace, source.meta.name, source.meta.get("resourceVersion")))
             configmap_content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
 
-    logger.info(
-        "Create or update ConfigMap %s.%s (%s): %s.",
-        config.meta.namespace,
-        config.meta.name,
-        config.spec["matchLabels"],
-        ", ".join(configmap_content[config.spec["property"]].keys()),
-    )
-
-    config_map = {
-        "apiVersion": "v1",
-        "kind": "ConfigMap",
-        "data": {
-            config.spec["configmapName"]: yaml.dump(
-                configmap_content, default_flow_style=False, Dumper=yaml.SafeDumper
-            )
-        },
-        "metadata": {
-            "name": config.meta.name,
-        },
-    }
-
-    # Make it our child: assign the namespace, name, labels, owner references, etc.
-    kopf.adopt(config_map, config)
-
-    api = kubernetes.client.CoreV1Api()
-    try:
-        api.replace_namespaced_config_map(
-            name=config.meta.name, namespace=config.meta.namespace, body=config_map
+    if (
+        "sources" not in status
+        or {tuple(source) for source in status["sources"]} != sources
+        or config.meta.get("resourceVersion") != status["resourceVersion"]
+    ):
+        logger.info(
+            "Create or update ConfigMap %s.%s (%s): %s.",
+            config.meta.namespace,
+            config.meta.name,
+            config.spec["matchLabels"],
+            ", ".join(configmap_content[config.spec["property"]].keys()),
         )
-    except kubernetes.client.exceptions.ApiException:
-        api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map)
+
+        config_map = {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "data": {
+                config.spec["configmapName"]: yaml.dump(
+                    configmap_content, default_flow_style=False, Dumper=yaml.SafeDumper
+                )
+            },
+            "metadata": {
+                "name": config.meta.name,
+            },
+        }
+
+        # Make it our child: assign the namespace, name, labels, owner references, etc.
+        kopf.adopt(config_map, config)
+
+        api = kubernetes.client.CoreV1Api()
+        try:
+            api.replace_namespaced_config_map(
+                name=config.meta.name, namespace=config.meta.namespace, body=config_map
+            )
+        except kubernetes.client.exceptions.ApiException:
+            api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map)
+
+        status["sources"] = list(sources)
+        status["resourceVersion"] = config.meta.get("resourceVersion")
+
+    return status
