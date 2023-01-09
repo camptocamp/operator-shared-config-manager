@@ -43,4 +43,4 @@ COPY * ./
 FROM runtime as default
 
 COPY shared_config_manager_operator.py ./
-ENTRYPOINT [ "kopf", "run", "shared_config_manager_operator.py"]
+ENTRYPOINT [ "kopf", "run", "--liveness=http://0.0.0.0:8080/healthz", "shared_config_manager_operator.py"]
