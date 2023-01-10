@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0](https://github.com/camptocamp/operator-shared-config-manager/tree/0.4.0) (2023-01-09)
+
+[Full Changelog](https://github.com/camptocamp/operator-shared-config-manager/compare/0.3.0...0.4.0)
+
+#### :sparkles: Enhancements
+
+- Use Kopf.index instead of global variables [\#223](https://github.com/camptocamp/operator-shared-config-manager/pull/223) ([sbrunner](https://github.com/sbrunner))
+
+#### :wrench: Build, CI, Tests, Code style
+
+- Update the changelog [\#222](https://github.com/camptocamp/operator-shared-config-manager/pull/222) ([c2c-bot-gis-ci](https://github.com/c2c-bot-gis-ci))
+- Fix pull requests check workflow, use our CI token [\#221](https://github.com/camptocamp/operator-shared-config-manager/pull/221) ([sbrunner](https://github.com/sbrunner))
+
+#### :package: Dependencies update
+
+- Lock file maintenance [\#219](https://github.com/camptocamp/operator-shared-config-manager/pull/219) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency poetry to v1.3.1 [\#218](https://github.com/camptocamp/operator-shared-config-manager/pull/218) ([renovate[bot]](https://github.com/apps/renovate))
+- Update all patch versions \(patch\) [\#217](https://github.com/camptocamp/operator-shared-config-manager/pull/217) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.3.0](https://github.com/camptocamp/operator-shared-config-manager/tree/0.3.0) (2022-12-23)
 
 [Full Changelog](https://github.com/camptocamp/operator-shared-config-manager/compare/0.2.2...0.3.0)
