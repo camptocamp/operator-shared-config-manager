@@ -1,11 +1,10 @@
-apiVersion: camptocamp.com/v2
-kind: SharedConfigSource
+apiVersion: camptocamp.com/v3
+kind: SharedConfigSourceTest
 metadata:
   name: test1
   labels:
     test: test1
 spec:
-  environment: test
   name: test
   content:
     type: git

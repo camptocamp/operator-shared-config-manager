@@ -1,10 +1,14 @@
+import datetime
 import json
+import logging
 import os.path
 import subprocess
 import time
 
 import pytest
 import yaml
+
+LOG = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -18,15 +22,37 @@ def install_operator(scope="session"):
                 "--namespace=default",
                 "--set=image.tag=latest",
                 '--set-json=args=["--debug"]',
-                "--set=env.ENVIRONMENT=test,env.INTERVAL=0.2",
+                "--set=env.ENVIRONMENT=test,env.INTERVAL=0.2,crd.suffix=test,crd.shortSuffix=t",
                 ".",
             ],
             stdout=operator_file,
             check=True,
         )
+    subprocess.run(["cat", "operator.yaml"], check=True)
     subprocess.run(["kubectl", "apply", "--filename=operator.yaml"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "source"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "config"], check=True)
+
+    pods = []
+    success = False
+    for _ in range(100):
+        pods = json.loads(
+            subprocess.run(
+                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE
+            ).stdout
+        )
+        if (
+            len(pods["items"]) == 1
+            and len(
+                [c for c in pods["items"][0].get("status", {}).get("conditions", {}) if c["status"] != "True"]
+            )
+            == 0
+        ):
+            success = True
+            break
+        time.sleep(1)
+    assert success, "The operator didn't run correctly: \n" + yaml.dump(pods)
+    LOG.warning("Operator created: %s", datetime.datetime.now())
 
     pods = []
     success = False

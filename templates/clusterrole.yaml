@@ -26,8 +26,8 @@ rules:
   - apiGroups:
       - camptocamp.com
     resources:
-      - sharedconfigsources
-      - sharedconfigconfigs
+      - sharedconfigsources{{ .Values.crd.suffix }}
+      - sharedconfigconfigs{{ .Values.crd.suffix }}
     verbs:
       - get
       - list

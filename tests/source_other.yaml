@@ -1,10 +1,9 @@
-apiVersion: camptocamp.com/v2
-kind: SharedConfigSource
+apiVersion: camptocamp.com/v3
+kind: SharedConfigSourceTest
 metadata:
   name: test1-other
   labels: {}
 spec:
-  environment: test
   name: test-other
   content:
     type: git
@@ -18,14 +17,13 @@ spec:
         data:
           TEST: test
 ---
-apiVersion: camptocamp.com/v2
-kind: SharedConfigSource
+apiVersion: camptocamp.com/v3
+kind: SharedConfigSourceTest
 metadata:
   name: test1-other2
   labels:
-    test: test1
+    test: other
 spec:
-  environment: other
   name: test
   content:
     type: git
