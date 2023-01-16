@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.6.0](https://github.com/camptocamp/operator-shared-config-manager/tree/0.6.0) (2023-01-16)
+
+[Full Changelog](https://github.com/camptocamp/operator-shared-config-manager/compare/0.5.0...0.6.0)
+
+#### :sparkles: Enhancements
+
+- Remove un working environment attribute solution [\#227](https://github.com/camptocamp/operator-shared-config-manager/pull/227) ([sbrunner](https://github.com/sbrunner))
+
+## [0.5.0](https://github.com/camptocamp/operator-shared-config-manager/tree/0.5.0) (2023-01-10)
+
+[Full Changelog](https://github.com/camptocamp/operator-shared-config-manager/compare/0.4.0...0.5.0)
+
+#### :sparkles: Enhancements
+
+- Add health check probe [\#225](https://github.com/camptocamp/operator-shared-config-manager/pull/225) ([sbrunner](https://github.com/sbrunner))
+- Add status to only update the config-map when needed [\#224](https://github.com/camptocamp/operator-shared-config-manager/pull/224) ([sbrunner](https://github.com/sbrunner))
+
+#### :wrench: Build, CI, Tests, Code style
+
+- Update the changelog [\#226](https://github.com/camptocamp/operator-shared-config-manager/pull/226) ([c2c-bot-gis-ci](https://github.com/c2c-bot-gis-ci))
+
+**Closed issues:**
+
+- Add health checks [\#216](https://github.com/camptocamp/operator-shared-config-manager/issues/216)
+- Use kopf indexing instance of create our own index [\#215](https://github.com/camptocamp/operator-shared-config-manager/issues/215)
+
 ## [0.4.0](https://github.com/camptocamp/operator-shared-config-manager/tree/0.4.0) (2023-01-09)
 
 [Full Changelog](https://github.com/camptocamp/operator-shared-config-manager/compare/0.3.0...0.4.0)
