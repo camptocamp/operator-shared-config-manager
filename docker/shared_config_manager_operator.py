@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import kopf
 import kubernetes  # type: ignore
@@ -11,7 +11,7 @@ import yaml
 
 _LOCK: asyncio.Lock
 
-_ENVIRONMENT: str = os.environ["ENVIRONMENT"]
+_ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "")
 _INTERVAL = float(os.environ.get("INTERVAL", "10"))
 
 _CHANGED_CONFIGS: List[Tuple[str, str]] = []
@@ -29,7 +29,7 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
     logger.info("Startup in environment %s", _ENVIRONMENT)
 
 
-@kopf.index("camptocamp.com", "v2", "sharedconfigconfigs", field="spec.environment", value=_ENVIRONMENT)
+@kopf.index("camptocamp.com", "v3", f"sharedconfigconfigs{_ENVIRONMENT}")
 async def sharedconfigconfigs(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
 ) -> Dict[None, kopf.Body]:
@@ -40,7 +40,7 @@ async def sharedconfigconfigs(
     return {None: body}
 
 
-@kopf.index("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=_ENVIRONMENT)
+@kopf.index("camptocamp.com", "v3", f"sharedconfigsources{_ENVIRONMENT}")
 async def sharedconfigsources(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
 ) -> Dict[None, kopf.Body]:
@@ -49,7 +49,7 @@ async def sharedconfigsources(
     return {None: body}
 
 
-@kopf.on.delete("camptocamp.com", "v2", "sharedconfigsources", field="spec.environment", value=_ENVIRONMENT)
+@kopf.on.delete("camptocamp.com", "v3", f"sharedconfigsources{_ENVIRONMENT}")
 async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs) -> None:
     logger.info("Delete source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     await _fill_changed_configs(body, **kwargs)
@@ -69,9 +69,7 @@ async def _fill_changed_configs(
 @kopf.timer(
     "camptocamp.com",
     "v2",
-    "sharedconfigconfigs",
-    field="spec.environment",
-    value=_ENVIRONMENT,
+    f"sharedconfigconfigs{_ENVIRONMENT}",
     interval=_INTERVAL,
 )
 async def timer(body: kopf.Body, meta: kopf.Meta, status: kopf.Status, logger: kopf.Logger, **kwargs):
@@ -80,9 +78,7 @@ async def timer(body: kopf.Body, meta: kopf.Meta, status: kopf.Status, logger: k
     result = None
     async with _LOCK:
         if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
-            result = await _update_config(
-                body, status=status.get("timer/spec.environment", {}), logger=logger, **kwargs
-            )
+            result = await _update_config(body, status=status.get("timer", {}), logger=logger, **kwargs)
             _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
     return result
 
@@ -107,7 +103,7 @@ async def _update_config(
     **_,
 ) -> Dict[str, Any]:
     configmap_content: Dict[str, Any] = {config.spec["property"]: {}}
-    sources: Set[Tuple[Optional[str], Optional[str], Optional[str]]] = set()
+    sources: Set[Tuple[str, str, str]] = set()
     for source in sharedconfigsources.get(None, []):
         assert isinstance(source, kopf.Body)
         if _match(source, config):
@@ -132,20 +128,23 @@ async def _update_config(
                 message=f"Use SharedConfigSource {source.meta.namespace}:{source.meta.name}",
             )
 
-            sources.add((source.meta.namespace, source.meta.name, source.meta.get("resourceVersion")))
+            sources.add(
+                (
+                    source.meta.namespace or "<undefined>",
+                    source.meta.name or "<undefined>",
+                    source.meta.get("resourceVersion", "<undefined>"),
+                )
+            )
             configmap_content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
 
-    if (
-        "sources" not in status
-        or {tuple(source) for source in status["sources"]} != sources
-        or config.meta.get("resourceVersion") != status["resourceVersion"]
-    ):
+    if "sources" not in status or {tuple(source) for source in status["sources"]} != sources:
         logger.info(
-            "Create or update ConfigMap %s.%s (%s): %s.",
+            "Create or update ConfigMap %s.%s (%s), labels: %s, sources: %s.",
             config.meta.namespace,
             config.meta.name,
             config.spec["matchLabels"],
             ", ".join(configmap_content[config.spec["property"]].keys()),
+            ", ".join([":".join(e) for e in sources]),
         )
 
         config_map = {
@@ -173,6 +172,5 @@ async def _update_config(
             api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map)
 
         status["sources"] = list(sources)
-        status["resourceVersion"] = config.meta.get("resourceVersion")
 
     return status
