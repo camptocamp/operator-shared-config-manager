@@ -11,6 +11,7 @@ pylint:
   disable:
     - bare-except
     - too-many-nested-blocks
+    - too-many-arguments
 
 mypy:
   run: true
