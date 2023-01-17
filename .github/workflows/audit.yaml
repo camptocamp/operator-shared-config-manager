@@ -18,6 +18,8 @@ jobs:
           - master
 
     steps:
+      # Remove Python packages with wriong version
+      - run: sudo apt-get remove python3-debian python3-distro-info
       - uses: actions/checkout@v3
         with:
           ref: ${{ matrix.branch }}
