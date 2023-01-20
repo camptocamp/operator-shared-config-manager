@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import kopf
 import kubernetes  # type: ignore
@@ -66,21 +66,31 @@ async def _fill_changed_configs(
                 _CHANGED_CONFIGS.append((config.metadata["namespace"], config.metadata["name"]))
 
 
-@kopf.timer(
+@kopf.daemon(
     "camptocamp.com",
-    "v2",
+    "v3",
     f"sharedconfigconfigs{_ENVIRONMENT}",
-    interval=_INTERVAL,
 )
-async def timer(body: kopf.Body, meta: kopf.Meta, status: kopf.Status, logger: kopf.Logger, **kwargs):
+async def daemon(
+    stopped: kopf.DaemonStopped,
+    body: kopf.Body,
+    meta: kopf.Meta,
+    status: kopf.Status,
+    patch: kopf.Patch,
+    logger: kopf.Logger,
+    **kwargs,
+):
     logger.info("Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned
-    result = None
-    async with _LOCK:
-        if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
-            result = await _update_config(body, status=status.get("timer", {}), logger=logger, **kwargs)
-            _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
-    return result
+
+    while not stopped:
+        async with _LOCK:
+            if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
+                result = await _update_config(body, status=status.get("sources"), logger=logger, **kwargs)
+                _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
+            if result is not None:
+                patch.status["sources"] = result
+        await asyncio.sleep(_INTERVAL)
 
 
 def _match(source: kopf.Body, config: kopf.Body) -> bool:
@@ -97,11 +107,11 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 
 async def _update_config(
     config: kopf.Body,
-    status: Dict[str, Any],
+    status: Optional[List[List[str]]],
     sharedconfigsources: kopf.Index,  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
     **_,
-) -> Dict[str, Any]:
+) -> Optional[List[List[str]]]:
     configmap_content: Dict[str, Any] = {config.spec["property"]: {}}
     sources: Set[Tuple[str, str, str]] = set()
     for source in sharedconfigsources.get(None, []):
@@ -137,7 +147,7 @@ async def _update_config(
             )
             configmap_content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
 
-    if "sources" not in status or {tuple(source) for source in status["sources"]} != sources:
+    if status is None or {tuple(source) for source in status} != sources:
         logger.info(
             "Create or update ConfigMap %s.%s (%s), labels: %s, sources: %s.",
             config.meta.namespace,
@@ -171,6 +181,6 @@ async def _update_config(
         except kubernetes.client.exceptions.ApiException:
             api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map)
 
-        status["sources"] = list(sources)
+        return [list(s) for s in sources]
 
-    return status
+    return None
