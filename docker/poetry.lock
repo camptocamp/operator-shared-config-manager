@@ -840,14 +840,14 @@ files = [
 
 [[package]]
 name = "prospector"
-version = "1.8.3"
+version = "1.8.4"
 description = "Prospector is a tool to analyse Python code by aggregating the result of other tools."
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "prospector-1.8.3-py3-none-any.whl", hash = "sha256:75d65a6f40682f25ea6f69dc12add9f921dbafdd307bf27aa099728f89d77b67"},
-    {file = "prospector-1.8.3.tar.gz", hash = "sha256:b674b619e1b9923eb750aea4ccda6254d2ebaca11eb1c43fbddf019a7cfcc5cb"},
+    {file = "prospector-1.8.4-py3-none-any.whl", hash = "sha256:4a9584544cf8d118574567a669b85456d036444597f0664185263e229055cdf6"},
+    {file = "prospector-1.8.4.tar.gz", hash = "sha256:60db5b6046a523248a1b32fb2daa8080d3f406da822ad95cff8cd9f153e04555"},
 ]
 
 [package.dependencies]
@@ -857,6 +857,7 @@ flake8 = "<6.0.0"
 GitPython = ">=3.1.27,<4.0.0"
 mccabe = ">=0.7.0,<0.8.0"
 mypy = {version = ">=0.600", optional = true, markers = "extra == \"with_mypy\" or extra == \"with_everything\""}
+packaging = "<22.0"
 pep8-naming = ">=0.3.3,<=0.10.0"
 pycodestyle = ">=2.9.0"
 pydocstyle = ">=2.0.0"
@@ -1325,14 +1326,14 @@ files = [
 
 [[package]]
 name = "types-pyyaml"
-version = "6.0.12.2"
+version = "6.0.12.3"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-PyYAML-6.0.12.2.tar.gz", hash = "sha256:6840819871c92deebe6a2067fb800c11b8a063632eb4e3e755914e7ab3604e83"},
-    {file = "types_PyYAML-6.0.12.2-py3-none-any.whl", hash = "sha256:1e94e80aafee07a7e798addb2a320e32956a373f376655128ae20637adb2655b"},
+    {file = "types-PyYAML-6.0.12.3.tar.gz", hash = "sha256:17ce17b3ead8f06e416a3b1d5b8ddc6cb82a422bb200254dd8b469434b045ffc"},
+    {file = "types_PyYAML-6.0.12.3-py3-none-any.whl", hash = "sha256:879700e9f215afb20ab5f849590418ab500989f83a57e635689e1d50ccc63f0c"},
 ]
 
 [[package]]
@@ -1546,4 +1547,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "ba652c5aa23c8485e49331ff6826b631eb749e7b440e86e0b1c8a72ee56051ae"
+content-hash = "f0dc6673882a026bc353b0b9c9b910bd7730db4ddcb38b43f2d3c8d1ce1942e4"
