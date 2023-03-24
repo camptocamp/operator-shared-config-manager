@@ -141,7 +141,6 @@ def test_operator(install_operator):
             )
         except:
             time.sleep(1)
-            pass
         data = cm["data"]
         if data["test.yaml"].strip() == "sources: {}":
             success = True
