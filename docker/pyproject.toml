@@ -12,4 +12,4 @@ pyyaml = "6.0"
 
 [tool.poetry.dev-dependencies]
 prospector = { version = "1.9.0", extras = ["with_bandit", "with_mypy"] }
-types-pyyaml = "6.0.12.8"
+types-pyyaml = "6.0.12.9"
