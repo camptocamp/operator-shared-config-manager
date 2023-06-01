@@ -7,10 +7,10 @@ authors = []
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 kubernetes = "26.1.0"
-kopf = "1.36.0"
+kopf = "1.36.1"
 pyyaml = "6.0"
 requests = "2.31.0"
 
 [tool.poetry.dev-dependencies]
 prospector = { version = "1.10.2", extras = ["with_bandit", "with_mypy"] }
-types-pyyaml = "6.0.12.9"
+types-pyyaml = "6.0.12.10"
