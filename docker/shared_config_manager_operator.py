@@ -33,9 +33,7 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
 async def sharedconfigconfigs(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
 ) -> dict[None, kopf.Body]:
-    logger.info(
-        "Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace")
-    )
+    logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK  # pylint: disable=global-variable-not-assigned
     async with _LOCK:
         _CHANGED_CONFIGS.append((meta["namespace"], meta["name"]))
@@ -46,17 +44,13 @@ async def sharedconfigconfigs(
 async def sharedconfigsources(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
 ) -> dict[None, kopf.Body]:
-    logger.info(
-        "Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace")
-    )
+    logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     await _fill_changed_configs(body, **kwargs)
     return {None: body}
 
 
 @kopf.on.delete("camptocamp.com", "v3", f"sharedconfigsources{_ENVIRONMENT}")
-async def on_source_deleted(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
-) -> None:
+async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs) -> None:
     logger.info(
         "Delete source, name: %s, namespace: %s",
         meta.get("name"),
@@ -73,9 +67,7 @@ async def _fill_changed_configs(
         for config in sharedconfigconfigs.get(None, []):
             assert isinstance(config, kopf.Body)
             if _match(source, config):
-                _CHANGED_CONFIGS.append(
-                    (config.metadata["namespace"], config.metadata["name"])
-                )
+                _CHANGED_CONFIGS.append((config.metadata["namespace"], config.metadata["name"]))
 
 
 @kopf.daemon(
@@ -92,17 +84,13 @@ async def daemon(
     logger: kopf.Logger,
     **kwargs,
 ):
-    logger.info(
-        "Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace")
-    )
+    logger.info("Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned
 
     while not stopped:
         async with _LOCK:
             if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
-                result = await _update_config(
-                    body, status=status.get("sources"), logger=logger, **kwargs
-                )
+                result = await _update_config(body, status=status.get("sources"), logger=logger, **kwargs)
                 _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
             if result is not None:
                 patch.status["sources"] = result
@@ -145,8 +133,7 @@ async def _update_config(
                 source,
                 type="SharedConfigOperator",
                 reason="Used",
-                message="Used by SharedConfigConfig "
-                f"{config.meta.namespace}:{config.meta.name}",
+                message="Used by SharedConfigConfig " f"{config.meta.namespace}:{config.meta.name}",
             )
             kopf.event(
                 config,
@@ -162,9 +149,7 @@ async def _update_config(
                     source.meta.get("resourceVersion", "<undefined>"),
                 )
             )
-            configmap_content[config.spec["property"]][
-                source.spec["name"]
-            ] = source.spec["content"]
+            configmap_content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
 
     if status is None or {tuple(source) for source in status} != sources:
         logger.info(
@@ -198,9 +183,7 @@ async def _update_config(
                 name=config.meta.name, namespace=config.meta.namespace, body=config_map
             )
         except kubernetes.client.exceptions.ApiException:
-            api.create_namespaced_config_map(
-                namespace=config.meta.namespace, body=config_map
-            )
+            api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map)
 
         return [list(s) for s in sources]
 
