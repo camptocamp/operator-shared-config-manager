@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Optional
 
 import kopf
 import kubernetes  # type: ignore
@@ -14,7 +14,7 @@ _LOCK: asyncio.Lock
 _ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "")
 _INTERVAL = float(os.environ.get("INTERVAL", "10"))
 
-_CHANGED_CONFIGS: List[Tuple[str, str]] = []
+_CHANGED_CONFIGS: list[tuple[str, str]] = []
 
 
 @kopf.on.startup()
@@ -32,7 +32,7 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
 @kopf.index("camptocamp.com", "v3", f"sharedconfigconfigs{_ENVIRONMENT}")
 async def sharedconfigconfigs(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
-) -> Dict[None, kopf.Body]:
+) -> dict[None, kopf.Body]:
     logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK  # pylint: disable=global-variable-not-assigned
     async with _LOCK:
@@ -43,7 +43,7 @@ async def sharedconfigconfigs(
 @kopf.index("camptocamp.com", "v3", f"sharedconfigsources{_ENVIRONMENT}")
 async def sharedconfigsources(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
-) -> Dict[None, kopf.Body]:
+) -> dict[None, kopf.Body]:
     logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     await _fill_changed_configs(body, **kwargs)
     return {None: body}
@@ -51,7 +51,11 @@ async def sharedconfigsources(
 
 @kopf.on.delete("camptocamp.com", "v3", f"sharedconfigsources{_ENVIRONMENT}")
 async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs) -> None:
-    logger.info("Delete source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
+    logger.info(
+        "Delete source, name: %s, namespace: %s",
+        meta.get("name"),
+        meta.get("namespace"),
+    )
     await _fill_changed_configs(body, **kwargs)
 
 
@@ -107,13 +111,13 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 
 async def _update_config(
     config: kopf.Body,
-    status: Optional[List[List[str]]],
+    status: Optional[list[list[str]]],
     sharedconfigsources: kopf.Index,  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
     **_,
-) -> Optional[List[List[str]]]:
-    configmap_content: Dict[str, Any] = {config.spec["property"]: {}}
-    sources: Set[Tuple[str, str, str]] = set()
+) -> Optional[list[list[str]]]:
+    configmap_content: dict[str, Any] = {config.spec["property"]: {}}
+    sources: set[tuple[str, str, str]] = set()
     for source in sharedconfigsources.get(None, []):
         assert isinstance(source, kopf.Body)
         if _match(source, config):
