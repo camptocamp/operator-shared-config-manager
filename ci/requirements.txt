@@ -1,5 +1,5 @@
 c2cciutils[checks,publish]==1.5.8
-pytest==7.4.0
+pytest==7.4.2
 pre-commit==3.3.3
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
 requests>=2.31.0 # not directly required, pinned by Snyk to avoid a vulnerability
