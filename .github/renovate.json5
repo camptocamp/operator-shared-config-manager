@@ -61,7 +61,7 @@
     },
     /** Disable upgrading the supported Python version */
     {
-      matchFileNames: ['pyproject.toml'],
+      matchFileNames: ['docker/pyproject.toml'],
       matchPackageNames: ['python'],
       enabled: false,
     },
