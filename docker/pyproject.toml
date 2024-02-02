@@ -10,7 +10,7 @@ kubernetes = "29.0.0"
 kopf = "1.37.1"
 pyyaml = "6.0.1"
 requests = "2.31.0"
-urllib3 = "1.26.18"
+urllib3 = "2.2.0"
 aiohttp = "3.9.3"
 
 [tool.poetry.dev-dependencies]
