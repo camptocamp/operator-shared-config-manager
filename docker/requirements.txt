@@ -1,4 +1,4 @@
-poetry==1.8.1
+poetry==1.8.2
 pip==24.0
 requests>=2.31.0 # not directly required, pinned by Snyk to avoid a vulnerability
 certifi>=2023.7.22 # not directly required, pinned by Snyk to avoid a vulnerability
