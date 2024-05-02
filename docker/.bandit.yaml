@@ -1,0 +1,2 @@
+skips:
+  - B101 # Test for use of assert

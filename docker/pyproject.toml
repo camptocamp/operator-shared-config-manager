@@ -16,4 +16,6 @@ idna = "3.7"
 
 [tool.poetry.dev-dependencies]
 prospector = { version = "1.10.3", extras = ["with_bandit", "with_mypy"] }
+prospector-profile-duplicated = "1.5.0"
+prospector-profile-utils  = "1.7.2"
 types-pyyaml = "6.0.12.20240311"
