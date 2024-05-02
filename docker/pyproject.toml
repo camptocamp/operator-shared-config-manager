@@ -5,7 +5,7 @@ description = 'Not used'
 authors = []
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.10,<3.13"
 kubernetes = "29.0.0"
 kopf = "1.37.2"
 pyyaml = "6.0.1"
@@ -16,4 +16,6 @@ idna = "3.7"
 
 [tool.poetry.dev-dependencies]
 prospector = { version = "1.10.3", extras = ["with_bandit", "with_mypy"] }
+prospector-profile-duplicated = "1.5.0"
+prospector-profile-utils  = "1.7.2"
 types-pyyaml = "6.0.12.20240311"
