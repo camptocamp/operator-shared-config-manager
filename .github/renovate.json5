@@ -51,12 +51,11 @@
     },
     /** Group Poetry packages */
     {
-      matchPackagePrefixes: ['poetry-'],
+      matchPackagePrefixes: ['poetry'],
       groupName: 'Poetry',
       automerge: true,
       separateMajorMinor: false,
       separateMinorPatch: false,
-      matchDepNames: ['poetry', 'pip'],
     },
     /** Support the 4 parts of shellcheck-py version with a v prefix */
     {
