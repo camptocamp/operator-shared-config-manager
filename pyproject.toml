@@ -1,3 +1,9 @@
 [tool.black]
 line-length = 110
 target-version = ["py39"]
+
+[tool.poetry]
+name = "operator-shared-config-manager"
+version = "0.0.0"
+description = "Operator Shared Config Manager"
+authors = ["Camptocamp <info@camptocamp.com>"]
