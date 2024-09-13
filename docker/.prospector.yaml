@@ -1,20 +1,12 @@
----
-strictness: veryhigh
+inherits:
+  - duplicated
+  - utils:base
+  - utils:fix
+  - utils:no-design-checks
 
-max-line-length: 110
+bandit:
+  options:
+    config: .bandit.yaml
 
-pycodestyle:
-  disable:
-    - E722
-
-pylint:
-  disable:
-    - bare-except
-    - too-many-nested-blocks
-    - too-many-arguments
-
-mypy:
-  run: true
-
-mccabe:
+pyroma:
   run: false

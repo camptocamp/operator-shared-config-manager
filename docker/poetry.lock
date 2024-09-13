@@ -995,6 +995,28 @@ with-pyroma = ["pyroma (>=2.4)"]
 with-vulture = ["vulture (>=1.5)"]
 
 [[package]]
+name = "prospector-profile-duplicated"
+version = "1.5.0"
+description = "Profile that can be used to disable the duplicated or conflict rules between Prospector and other tools"
+optional = false
+python-versions = "*"
+files = [
+    {file = "prospector_profile_duplicated-1.5.0-py2.py3-none-any.whl", hash = "sha256:fd4d3272ff6b5ceead036f4a60da6dd7aa5317057f66c735994b75542c9a0815"},
+    {file = "prospector_profile_duplicated-1.5.0.tar.gz", hash = "sha256:c1d6074ebb44fd3ea6a7b85e96d58a27f6e525687b019ef94924a9c8d2ccd5d5"},
+]
+
+[[package]]
+name = "prospector-profile-utils"
+version = "1.7.2"
+description = "Some utility Prospector profiles."
+optional = false
+python-versions = "*"
+files = [
+    {file = "prospector_profile_utils-1.7.2-py2.py3-none-any.whl", hash = "sha256:b22f391258c8baff67a56c93fccabd0a62a637572330ca6b520586065cd7912d"},
+    {file = "prospector_profile_utils-1.7.2.tar.gz", hash = "sha256:200f955d4c506e1ed2b111d986062ef54c01879889809b505aaebdb17dfe3622"},
+]
+
+[[package]]
 name = "pyasn1"
 version = "0.6.0"
 description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
@@ -1680,4 +1702,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "ed3bddfc41955e10554bdb9ae72ff074f7c99c4cd53266e3d057f2c5ac3e77eb"
+content-hash = "68b56451028e82e3dfe0bcd8a3bb392e2b07bdbb4e668f678348eb13e8563502"

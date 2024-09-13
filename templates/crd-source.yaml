@@ -8,7 +8,7 @@ metadata:
 spec:
   group: camptocamp.com
   versions:
-    - name: v3
+    - name: v4
       served: true
       storage: true
       schema:
@@ -25,7 +25,32 @@ spec:
                   type: string
                 content:
                   type: object
-                  x-kubernetes-preserve-unknown-fields: True
+                  x-kubernetes-preserve-unknown-fields: true
+                external_secret:
+                  type: object
+                  additionalProperties:
+                      type: string
+            status:
+              x-kubernetes-preserve-unknown-fields: true
+
+    - name: v3
+      served: true
+      storage: false
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - name
+                - content
+              properties:
+                name:
+                  type: string
+                content:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
             status:
               x-kubernetes-preserve-unknown-fields: true
     - name: v2
@@ -48,7 +73,7 @@ spec:
                   type: string
                 content:
                   type: object
-                  x-kubernetes-preserve-unknown-fields: True
+                  x-kubernetes-preserve-unknown-fields: true
             status:
               x-kubernetes-preserve-unknown-fields: true
     - name: v1
@@ -66,7 +91,7 @@ spec:
                   type: string
                 content:
                   type: object
-                  x-kubernetes-preserve-unknown-fields: True
+                  x-kubernetes-preserve-unknown-fields: true
             status:
               x-kubernetes-preserve-unknown-fields: true
   scope: Namespaced

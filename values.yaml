@@ -23,6 +23,7 @@ crd:
 
 clusterrole: true
 clusterrolebinding: true
+externalSecret: true
 deployment: true
 
 args: []

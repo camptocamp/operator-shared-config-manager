@@ -1,0 +1,17 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigConfigTest
+metadata:
+  name: test2
+  labels:
+    test: test2
+spec:
+  matchLabels:
+    test: test1
+  property: sources
+  configmapName: test.yaml
+  outputKind: ExternalSecret
+  refreshInterval: 10s
+  secretStoreRef:
+    kind: SecretStore
+    name: keyvault
+  externalSecretPrefix: project-config
