@@ -1,0 +1,22 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigSourceTest
+metadata:
+  name: test1
+  labels:
+    test: test1
+spec:
+  name: test
+  content:
+    type: git
+    repo: git@github.com:camptocamp/test.git
+    branch: master
+    key: admin12341
+    sub_dir: dir
+    template_engines:
+      - type: shell
+        environment_variables: true
+        data:
+          TEST: test {{
+          SECRET: '{secret_key}'
+  external_secret:
+    secret_key: secret-value

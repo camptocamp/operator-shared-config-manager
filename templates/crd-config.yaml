@@ -8,9 +8,48 @@ metadata:
 spec:
   group: camptocamp.com
   versions:
-    - name: v3
+    - name: v4
       served: true
       storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - matchLabels
+                - property
+                - configmapName
+              properties:
+                matchLabels:
+                  type: object
+                  additionalProperties:
+                    type: string
+                property:
+                  type: string
+                configmapName:
+                  type: string
+                outputKind:
+                  type: string
+                  default: "ConfigMap"
+                  enum:
+                    - ConfigMap
+                    - ExternalSecret
+                refreshInterval:
+                  type: string
+                secretStoreRef:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                externalSecretPrefix:
+                  type: string
+                  default: "scm"
+                  description: "Prefix for the ExternalSecret remoteRef keys"
+            status:
+              x-kubernetes-preserve-unknown-fields: true
+    - name: v3
+      served: true
+      storage: false
       schema:
         openAPIV3Schema:
           type: object

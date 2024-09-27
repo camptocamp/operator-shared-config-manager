@@ -28,7 +28,6 @@ def install_operator(scope="session"):
             stdout=operator_file,
             check=True,
         )
-    subprocess.run(["cat", "operator.yaml"], check=True)
     subprocess.run(["kubectl", "apply", "--filename=operator.yaml"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "source"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "config"], check=True)
@@ -73,41 +72,19 @@ def install_operator(scope="session"):
 
     yield
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=default"], check=True)
+    subprocess.run(["kubectl", "delete", "namespace", "config"], check=True)
+    subprocess.run(["kubectl", "delete", "namespace", "source"], check=True)
+
     # We should have the pod to be able to extract the logs
     # subprocess.run(["kubectl", "delete", "--filename=operator.yaml"], check=True)
     os.remove("operator.yaml")
 
 
-def test_operator(install_operator):
-    del install_operator
-
-    # Initialize the source and the config
-    subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "apply", "--filename=tests/source.yaml"], check=True)
-    subprocess.run(["kubectl", "apply", "--filename=tests/source_other.yaml"], check=True)
-    subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
-    subprocess.run(["kubectl", "apply", "--filename=tests/config.yaml"], check=True)
-
-    # Wait that the ConfigMap is correctly created
-    cm = None
-    for _ in range(10):
-        try:
-            cm = json.loads(
-                subprocess.run(
-                    ["kubectl", "get", "configmap", "test2", "--output=json"],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                ).stdout
-            )
-            break
-        except subprocess.CalledProcessError:
-            time.sleep(1)
-
-    assert cm is not None, "No config map found"
-    assert "test.yaml" in cm["data"], cm["data"].keys()
-    assert (
-        cm["data"]["test.yaml"]
-        == """sources:
+_CONFIG_MAP = {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "data": {
+        "test.yaml": """sources:
   test:
     branch: master
     key: admin1234
@@ -119,45 +96,256 @@ def test_operator(install_operator):
       environment_variables: true
       type: shell
     type: git
-"""
+""",
+    },
+}
+_CONFIG_MAP_EMPTY = {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "data": {
+        "test.yaml": "\n".join(
+            [
+                "sources: {}",
+                "",
+            ]
+        ),
+    },
+}
+_EXTERNAL_SECRET = {
+    "apiVersion": "external-secrets.io/v1beta1",
+    "kind": "ExternalSecret",
+    "spec": {
+        "data": [
+            {
+                "remoteRef": {
+                    "conversionStrategy": "Default",
+                    "decodingStrategy": "None",
+                    "key": "project-config-source-secret-value",
+                    "metadataPolicy": "None",
+                },
+                "secretKey": "source_secret_key",
+            }
+        ],
+        "refreshInterval": "10s",
+        "secretStoreRef": {"kind": "SecretStore", "name": "keyvault"},
+        "target": {
+            "creationPolicy": "Owner",
+            "deletionPolicy": "Retain",
+            "name": "test2",
+            "template": {
+                "data": {
+                    "test.yaml": "\n".join(
+                        [
+                            "sources:",
+                            "  test:",
+                            "    branch: master",
+                            "    key: admin12341",
+                            "    repo: git@github.com:camptocamp/test.git",
+                            "    sub_dir: dir",
+                            "    template_engines:",
+                            "    - data:",
+                            "        SECRET: '{{ .source_secret_key }}'",
+                            "        TEST: test {{`{{`}}",
+                            "      environment_variables: true",
+                            "      type: shell",
+                            "    type: git",
+                            "",
+                        ]
+                    )
+                },
+                "engineVersion": "v2",
+                "mergePolicy": "Replace",
+            },
+        },
+    },
+}
+_EXTERNAL_SECRET_EMPTY = {
+    "apiVersion": "external-secrets.io/v1beta1",
+    "kind": "ExternalSecret",
+    "spec": {
+        "data": [],
+        "refreshInterval": "10s",
+        "secretStoreRef": {"kind": "SecretStore", "name": "keyvault"},
+        "target": {
+            "creationPolicy": "Owner",
+            "deletionPolicy": "Retain",
+            "name": "test2",
+            "template": {
+                "data": {
+                    "test.yaml": "\n".join(
+                        [
+                            "sources: {}",
+                            "",
+                        ]
+                    )
+                },
+                "engineVersion": "v2",
+                "mergePolicy": "Replace",
+            },
+        },
+    },
+}
+
+_EXTERNAL_SECRET_MIX = {
+    "apiVersion": "external-secrets.io/v1beta1",
+    "kind": "ExternalSecret",
+    "spec": {
+        "data": [
+            {
+                "remoteRef": {
+                    "conversionStrategy": "Default",
+                    "decodingStrategy": "None",
+                    "key": "project-config-source-secret-value",
+                    "metadataPolicy": "None",
+                },
+                "secretKey": "source_secret_key",
+            }
+        ],
+        "refreshInterval": "10s",
+        "secretStoreRef": {"kind": "SecretStore", "name": "keyvault"},
+        "target": {
+            "creationPolicy": "Owner",
+            "deletionPolicy": "Retain",
+            "name": "test2",
+            "template": {
+                "data": {
+                    "test.yaml": "\n".join(
+                        [
+                            "sources:",
+                            "  test-v3:",
+                            "    branch: master",
+                            "    key: admin1234",
+                            "    repo: git@github.com:camptocamp/test.git",
+                            "    sub_dir: dir",
+                            "    template_engines:",
+                            "    - data:",
+                            "        TEST: test",
+                            "      environment_variables: true",
+                            "      type: shell",
+                            "    type: git",
+                            "  test-v4:",
+                            "    branch: master",
+                            "    key: admin12341",
+                            "    repo: git@github.com:camptocamp/test.git",
+                            "    sub_dir: dir",
+                            "    template_engines:",
+                            "    - data:",
+                            "        SECRET: '{{ .source_secret_key }}'",
+                            "        TEST: test {{`{{`}}",
+                            "      environment_variables: true",
+                            "      type: shell",
+                            "    type: git",
+                            "",
+                        ]
+                    )
+                },
+                "engineVersion": "v2",
+                "mergePolicy": "Replace",
+            },
+        },
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "source_version,source_other_version,config_version,expected_type,expected_data,expected_empty",
+    [
+        [
+            "v3",
+            "v3",
+            "v3",
+            "configmap",
+            _CONFIG_MAP,
+            _CONFIG_MAP_EMPTY,
+        ],
+        [
+            "v4",
+            "v4",
+            "v4",
+            "externalsecret",
+            _EXTERNAL_SECRET,
+            _EXTERNAL_SECRET_EMPTY,
+        ],
+        [
+            "mix",
+            "v4",
+            "v4",
+            "externalsecret",
+            _EXTERNAL_SECRET_MIX,
+            _EXTERNAL_SECRET_EMPTY,
+        ],
+    ],
+)
+def test_operator(
+    install_operator,
+    source_version,
+    source_other_version,
+    config_version,
+    expected_type,
+    expected_data,
+    expected_empty,
+):
+    del install_operator
+
+    # Initialize the source and the config
+    subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
+    subprocess.run(["kubectl", "apply", f"--filename=tests/source_{source_version}.yaml"], check=True)
+    subprocess.run(
+        ["kubectl", "apply", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True
     )
+    subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
+    subprocess.run(["kubectl", "apply", f"--filename=tests/config_{config_version}.yaml"], check=True)
+
+    # Wait that the Object is correctly created
+    generated_object = None
+    for _ in range(10):
+        try:
+            generated_object = json.loads(
+                subprocess.run(
+                    ["kubectl", "get", expected_type, "test2", "--output=json"],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                ).stdout
+            )
+            break
+        except subprocess.CalledProcessError:
+            time.sleep(1)
+
+    assert generated_object is not None, f"No {expected_type} found"
+    filtered_generated_object = {k: v for k, v in generated_object.items() if k != "metadata"}
+    assert filtered_generated_object == expected_data
 
     # Remove the source
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "delete", "--filename=tests/source.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", f"--filename=tests/source_{source_version}.yaml"], check=True)
 
-    # Wait that the ConfigMap is correctly updated
+    # Wait that the Object is correctly updated
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
-    data = None
-    success = False
+    filtered_generated_object = None
     for _ in range(10):
-        try:
-            cm = json.loads(
-                subprocess.run(
-                    ["kubectl", "get", "configmap", "test2", "--output=json"],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                ).stdout
-            )
-        except:
-            time.sleep(1)
-        data = cm["data"]
-        if data["test.yaml"].strip() == "sources: {}":
-            success = True
+        generated_object = json.loads(
+            subprocess.run(
+                ["kubectl", "get", expected_type, "test2", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout
+        )
+        filtered_generated_object = {k: v for k, v in generated_object.items() if k != "metadata"}
+        if filtered_generated_object == expected_empty:
             break
         time.sleep(1)
 
-    assert success, data
+    assert filtered_generated_object == expected_empty
 
     # Remove the config
-    subprocess.run(["kubectl", "delete", "--filename=tests/config.yaml"], check=True)
-    # Wait that the ConfigMap is correctly deleted
+    subprocess.run(["kubectl", "delete", f"--filename=tests/config_{config_version}.yaml"], check=True)
+    # Wait that the Object is correctly deleted
     success = False
     for _ in range(10):
         try:
-            cm = json.loads(
+            generated_object = json.loads(
                 subprocess.run(
-                    ["kubectl", "get", "configmap", "test2", "--output=json"],
+                    ["kubectl", "get", expected_type, "test2", "--output=json"],
                     check=True,
                     stdout=subprocess.PIPE,
                 ).stdout
@@ -166,8 +354,10 @@ def test_operator(install_operator):
         except:
             success = True
             break
-    assert success, "The ConfigMap is not correctly deleted"
+    assert success, "The Object is not correctly deleted"
 
     # Remove the other source, to be cleaned
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
-    subprocess.run(["kubectl", "delete", "--filename=tests/source_other.yaml"], check=True)
+    subprocess.run(
+        ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True
+    )

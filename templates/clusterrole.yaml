@@ -21,7 +21,7 @@ rules:
     verbs:
       - get
       - create
-      - update
+      - patch
       - delete
   - apiGroups:
       - camptocamp.com
@@ -33,4 +33,15 @@ rules:
       - list
       - watch
       - patch
+{{- if .Values.externalSecret }}
+  - apiGroups:
+      - external-secrets.io
+    resources:
+      - externalsecrets
+    verbs:
+      - get
+      - create
+      - patch
+      - delete
+{{- end }}
 {{- end }}
