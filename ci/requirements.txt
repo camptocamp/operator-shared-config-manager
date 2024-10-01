@@ -1,5 +1,5 @@
-c2cciutils[checks,publish]==1.6.22
-pytest==8.3.2
+c2cciutils[checks,publish]==1.6.23
+pytest==8.3.3
 pre-commit==3.8.0
 # To fix audit
 poetry-dynamic-versioning==1.4.0
