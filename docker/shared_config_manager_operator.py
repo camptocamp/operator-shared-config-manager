@@ -157,6 +157,7 @@ async def daemon(
 
     while not stopped:
         async with _LOCK:
+            result = None
             if (meta["namespace"], meta["name"]) in _CHANGED_CONFIGS:
                 result = await _update_config(body, status=status.get("sources"), logger=logger, **kwargs)
                 _CHANGED_CONFIGS.remove((meta["namespace"], meta["name"]))
