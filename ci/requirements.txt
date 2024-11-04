@@ -1,4 +1,4 @@
-c2cciutils[checks,publish]==1.6.23
+c2cciutils[checks,publish]==1.7.1
 pytest==8.3.3
 pre-commit==4.0.1
 # To fix audit
