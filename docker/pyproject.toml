@@ -11,12 +11,12 @@ kopf = "1.37.3"
 pyyaml = "6.0.2"
 requests = "2.32.3"
 urllib3 = "2.2.3"
-aiohttp = "3.10.11"
+aiohttp = "3.11.9"
 idna = "3.10"
 certifi = "2024.8.30"
 
 [tool.poetry.dev-dependencies]
-prospector = { version = "1.12.1", extras = ["with_bandit", "with_mypy"] }
-prospector-profile-utils = "1.9.1"
-prospector-profile-duplicated = "1.6.0"
+prospector = { version = "1.13.3", extras = ["with_bandit", "with_mypy", "with_ruff"] }
+prospector-profile-utils = "1.13.0"
+prospector-profile-duplicated = "1.8.0"
 types-pyyaml = "6.0.12.20240917"

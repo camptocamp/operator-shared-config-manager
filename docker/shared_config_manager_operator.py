@@ -86,6 +86,7 @@ def _validate_source(source: kopf.Body) -> bool:
 
 @kopf.on.startup()
 async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> None:
+    """Startup the operator."""
     settings.posting.level = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
 
     if "KOPF_SERVER_TIMEOUT" in os.environ:
@@ -101,6 +102,7 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
 async def shared_config_configs(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
 ) -> dict[None, kopf.Body]:
+    """Index the configs."""
     logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK  # pylint: disable=global-variable-not-assigned
     async with _LOCK:
@@ -112,6 +114,7 @@ async def shared_config_configs(
 async def shared_config_sources(
     body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
 ) -> dict[None, kopf.Body]:
+    """Index the sources."""
     logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     await _fill_changed_configs(body, **kwargs)
     return {None: body}
@@ -119,6 +122,7 @@ async def shared_config_sources(
 
 @kopf.on.delete("camptocamp.com", "v4", f"sharedconfigsources{_ENVIRONMENT}")
 async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs) -> None:
+    """Apply the config when a source is deleted."""
     logger.info(
         "Delete source, name: %s, namespace: %s",
         meta.get("name"),
@@ -127,9 +131,7 @@ async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logge
     await _fill_changed_configs(body, **kwargs)
 
 
-async def _fill_changed_configs(
-    source: kopf.Body, shared_config_configs: kopf.Index, **_
-):  # pylint: disable=redefined-outer-name
+async def _fill_changed_configs(source: kopf.Body, shared_config_configs: kopf.Index, **_):  # pylint: disable=redefined-outer-name
     global _LOCK  # pylint: disable=global-variable-not-assigned
     async with _LOCK:
         for config in shared_config_configs.get(None, []):
@@ -152,6 +154,9 @@ async def daemon(
     logger: kopf.Logger,
     **kwargs,
 ):
+    """
+    Daemon to update the config.
+    """
     logger.info("Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
     global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned
 
