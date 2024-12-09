@@ -11,7 +11,7 @@ kopf = "1.37.3"
 pyyaml = "6.0.2"
 requests = "2.32.3"
 urllib3 = "2.2.3"
-aiohttp = "3.11.9"
+aiohttp = "3.11.10"
 idna = "3.10"
 certifi = "2024.8.30"
 
