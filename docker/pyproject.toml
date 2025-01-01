@@ -7,16 +7,16 @@ authors = []
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 kubernetes = "31.0.0"
-kopf = "1.37.3"
+kopf = "1.37.4"
 pyyaml = "6.0.2"
 requests = "2.32.3"
 urllib3 = "2.2.3"
-aiohttp = "3.11.10"
+aiohttp = "3.11.11"
 idna = "3.10"
 certifi = "2024.8.30"
 
 [tool.poetry.dev-dependencies]
 prospector = { version = "1.13.3", extras = ["with_bandit", "with_mypy", "with_ruff"] }
 prospector-profile-utils = "1.13.0"
-prospector-profile-duplicated = "1.8.0"
-types-pyyaml = "6.0.12.20240917"
+prospector-profile-duplicated = "1.8.1"
+types-pyyaml = "6.0.12.20241230"
