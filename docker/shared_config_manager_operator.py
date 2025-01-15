@@ -191,7 +191,7 @@ async def _update_config(
     **_,
 ) -> Optional[list[list[str]]]:
     content: dict[str, Any] = {config.spec["property"]: {}}
-    external_secrets_data: list[dict[str, Any]] = []
+    external_secrets_data: dict[str, dict[str, Any]] = {}
     gen_external_secret: bool = config.spec.get("outputKind", "ConfigMap") == "ExternalSecret"
     sources: set[tuple[str, str, str]] = set()
     for source in shared_config_sources.get(None, []):
@@ -231,16 +231,16 @@ async def _update_config(
                 if gen_external_secret:
                     namespace = source.meta.namespace if source.meta.namespace else "unknown-namespace"
                     namespace_no_dash = namespace.replace("-", "_")
-                    external_secrets_data.extend(
-                        [
-                            {
+                    external_secrets_data.update(
+                        {
+                            f"{namespace_no_dash}_{key}": {
                                 "secretKey": f"{namespace_no_dash}_{key}",
                                 "remoteRef": {
                                     "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}"
                                 },
                             }
                             for key, value in source.spec.get("external_secret", {}).items()
-                        ]
+                        }
                     )
                     template_data = {
                         key: f"{{{{ .{namespace_no_dash}_{key} }}}}"
@@ -341,7 +341,7 @@ async def _update_config(
                     "spec": {
                         "refreshInterval": config.spec.get("refreshInterval", "1h"),
                         "secretStoreRef": config.spec["secretStoreRef"],
-                        "data": external_secrets_data,
+                        "data": list(external_secrets_data.values()),
                         "target": {
                             "name": config.meta.name,
                             "template": {
