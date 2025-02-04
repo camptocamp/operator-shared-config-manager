@@ -33,8 +33,7 @@ def _validate_source(source: kopf.Body) -> bool:
                 type="SharedConfigOperator",
                 reason="Error",
                 message=(
-                    "The source name must be a string. "
-                    f"Got {source['name']} of type {type(source['name'])}."
+                    f"The source name must be a string. Got {source['name']} of type {type(source['name'])}."
                 ),
             )
             return False
@@ -65,8 +64,7 @@ def _validate_source(source: kopf.Body) -> bool:
                 type="SharedConfigOperator",
                 reason="Error",
                 message=(
-                    "The external secret must match the regular expression "
-                    f"{_NAME_RE.pattern}. Got {secret}."
+                    f"The external secret must match the regular expression {_NAME_RE.pattern}. Got {secret}."
                 ),
             )
             return False
@@ -212,7 +210,7 @@ async def _update_config(
                     source,
                     type="SharedConfigOperator",
                     reason="Used",
-                    message="Used by SharedConfigConfig " f"{config.meta.namespace}:{config.meta.name}",
+                    message=f"Used by SharedConfigConfig {config.meta.namespace}:{config.meta.name}",
                 )
                 kopf.event(
                     config,
