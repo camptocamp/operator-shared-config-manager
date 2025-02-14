@@ -4,10 +4,10 @@ import asyncio
 import logging
 import os
 import re
-from typing import Any, Optional
+from typing import Any
 
 import kopf
-import kubernetes  # type: ignore
+import kubernetes
 import yaml
 
 _LOCK: asyncio.Lock
@@ -22,10 +22,7 @@ _GO_NAME_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 def _validate_source(source: kopf.Body) -> bool:
-    """
-    Validate the source spec.
-    """
-
+    """Validate the source spec."""
     if "name" in source.spec:
         if not isinstance(source.spec["name"], str):
             kopf.event(
@@ -83,7 +80,7 @@ def _validate_source(source: kopf.Body) -> bool:
 
 
 @kopf.on.startup()
-async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> None:
+async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_: Any) -> None:
     """Startup the operator."""
     settings.posting.level = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
 
@@ -91,18 +88,21 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
         settings.watching.server_timeout = int(os.environ["KOPF_SERVER_TIMEOUT"])
     if "KOPF_CLIENT_TIMEOUT" in os.environ:
         settings.watching.client_timeout = int(os.environ["KOPF_CLIENT_TIMEOUT"])
-    global _LOCK  # pylint: disable=global-statement
+    global _LOCK  # pylint: disable=global-statement # noqa: PLW0603
     _LOCK = asyncio.Lock()
     logger.info("Startup in environment %s", _ENVIRONMENT)
 
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigconfigs{_ENVIRONMENT}")
 async def shared_config_configs(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
+    body: kopf.Body,
+    meta: kopf.Meta,
+    logger: kopf.Logger,
+    **_: Any,
 ) -> dict[None, kopf.Body]:
     """Index the configs."""
     logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
-    global _LOCK  # pylint: disable=global-variable-not-assigned
+    global _LOCK  # pylint: disable=global-variable-not-assigned # noqa: PLW0602
     async with _LOCK:
         _CHANGED_CONFIGS.append((meta["namespace"], meta["name"]))
     return {None: body}
@@ -110,7 +110,10 @@ async def shared_config_configs(
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigsources{_ENVIRONMENT}")
 async def shared_config_sources(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
+    body: kopf.Body,
+    meta: kopf.Meta,
+    logger: kopf.Logger,
+    **kwargs: Any,
 ) -> dict[None, kopf.Body]:
     """Index the sources."""
     logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
@@ -119,7 +122,7 @@ async def shared_config_sources(
 
 
 @kopf.on.delete("camptocamp.com", "v4", f"sharedconfigsources{_ENVIRONMENT}")
-async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs) -> None:
+async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs: Any) -> None:
     """Apply the config when a source is deleted."""
     logger.info(
         "Delete source, name: %s, namespace: %s",
@@ -129,8 +132,8 @@ async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logge
     await _fill_changed_configs(body, **kwargs)
 
 
-async def _fill_changed_configs(source: kopf.Body, shared_config_configs: kopf.Index, **_):  # pylint: disable=redefined-outer-name
-    global _LOCK  # pylint: disable=global-variable-not-assigned
+async def _fill_changed_configs(source: kopf.Body, shared_config_configs: kopf.Index, **_: Any) -> None:  # pylint: disable=redefined-outer-name
+    global _LOCK  # pylint: disable=global-variable-not-assigned # noqa: PLW0602
     async with _LOCK:
         for config in shared_config_configs.get(None, []):
             assert isinstance(config, kopf.Body)
@@ -150,13 +153,11 @@ async def daemon(
     status: kopf.Status,
     patch: kopf.Patch,
     logger: kopf.Logger,
-    **kwargs,
-):
-    """
-    Daemon to update the config.
-    """
+    **kwargs: Any,
+) -> None:
+    """Daemon to update the config."""
     logger.info("Timer config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
-    global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned
+    global _LOCK, _CHANGED_CONFIGS  # pylint: disable=global-variable-not-assigned # noqa: PLW0602
 
     while not stopped:
         async with _LOCK:
@@ -170,9 +171,7 @@ async def daemon(
 
 
 def _match(source: kopf.Body, config: kopf.Body) -> bool:
-    """
-    Check if the source labels matches the config matchLables.
-    """
+    """Check if the source labels matches the config matchLables."""
     for label, value in config.spec["matchLabels"].items():
         if label not in source.meta.labels:
             return False
@@ -183,11 +182,11 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 
 async def _update_config(
     config: kopf.Body,
-    status: Optional[list[list[str]]],
+    status: list[list[str]] | None,
     shared_config_sources: kopf.Index,  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
-    **_,
-) -> Optional[list[list[str]]]:
+    **_: Any,
+) -> list[list[str]] | None:
     content: dict[str, Any] = {config.spec["property"]: {}}
     external_secrets_data: dict[str, dict[str, Any]] = {}
     gen_external_secret: bool = config.spec.get("outputKind", "ConfigMap") == "ExternalSecret"
@@ -224,7 +223,7 @@ async def _update_config(
                         source.meta.namespace or "<undefined>",
                         source.meta.name or "<undefined>",
                         source.meta.get("resourceVersion", "<undefined>"),
-                    )
+                    ),
                 )
                 if gen_external_secret:
                     namespace = source.meta.namespace if source.meta.namespace else "unknown-namespace"
@@ -234,15 +233,15 @@ async def _update_config(
                             f"{namespace_no_dash}_{key}": {
                                 "secretKey": f"{namespace_no_dash}_{key}",
                                 "remoteRef": {
-                                    "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}"
+                                    "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}",
                                 },
                             }
                             for key, value in source.spec.get("external_secret", {}).items()
-                        }
+                        },
                     )
                     template_data = {
                         key: f"{{{{ .{namespace_no_dash}_{key} }}}}"
-                        for key in source.spec.get("external_secret", {}).keys()
+                        for key in source.spec.get("external_secret", {})
                     }
                     try:
                         content[config.spec["property"]][source.spec["name"]] = yaml.load(
@@ -273,7 +272,10 @@ async def _update_config(
                     content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
         except Exception as exception:
             logger.error(
-                "Error while processing source %s.%s: %s", source.meta.namespace, source.meta.name, exception
+                "Error while processing source %s.%s: %s",
+                source.meta.namespace,
+                source.meta.name,
+                exception,
             )
             kopf.event(
                 source,
@@ -299,8 +301,10 @@ async def _update_config(
                 config_map = {
                     "data": {
                         config.spec["configmapName"]: yaml.dump(
-                            content, default_flow_style=False, Dumper=yaml.SafeDumper
-                        )
+                            content,
+                            default_flow_style=False,
+                            Dumper=yaml.SafeDumper,
+                        ),
                     },
                 }
 
@@ -345,8 +349,10 @@ async def _update_config(
                             "template": {
                                 "data": {
                                     config.spec["configmapName"]: yaml.dump(
-                                        content, default_flow_style=False, Dumper=yaml.SafeDumper
-                                    )
+                                        content,
+                                        default_flow_style=False,
+                                        Dumper=yaml.SafeDumper,
+                                    ),
                                 },
                             },
                         },
