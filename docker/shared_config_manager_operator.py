@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 import re
-from typing import Any, Optional
+from typing import Any
 
 import kopf
 import kubernetes  # type: ignore
@@ -25,7 +25,6 @@ def _validate_source(source: kopf.Body) -> bool:
     """
     Validate the source spec.
     """
-
     if "name" in source.spec:
         if not isinstance(source.spec["name"], str):
             kopf.event(
@@ -98,7 +97,7 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigconfigs{_ENVIRONMENT}")
 async def shared_config_configs(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_
+    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_,
 ) -> dict[None, kopf.Body]:
     """Index the configs."""
     logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
@@ -110,7 +109,7 @@ async def shared_config_configs(
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigsources{_ENVIRONMENT}")
 async def shared_config_sources(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs
+    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs,
 ) -> dict[None, kopf.Body]:
     """Index the sources."""
     logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
@@ -183,11 +182,11 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 
 async def _update_config(
     config: kopf.Body,
-    status: Optional[list[list[str]]],
+    status: list[list[str]] | None,
     shared_config_sources: kopf.Index,  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
     **_,
-) -> Optional[list[list[str]]]:
+) -> list[list[str]] | None:
     content: dict[str, Any] = {config.spec["property"]: {}}
     external_secrets_data: dict[str, dict[str, Any]] = {}
     gen_external_secret: bool = config.spec.get("outputKind", "ConfigMap") == "ExternalSecret"
@@ -224,7 +223,7 @@ async def _update_config(
                         source.meta.namespace or "<undefined>",
                         source.meta.name or "<undefined>",
                         source.meta.get("resourceVersion", "<undefined>"),
-                    )
+                    ),
                 )
                 if gen_external_secret:
                     namespace = source.meta.namespace if source.meta.namespace else "unknown-namespace"
@@ -234,11 +233,11 @@ async def _update_config(
                             f"{namespace_no_dash}_{key}": {
                                 "secretKey": f"{namespace_no_dash}_{key}",
                                 "remoteRef": {
-                                    "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}"
+                                    "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}",
                                 },
                             }
                             for key, value in source.spec.get("external_secret", {}).items()
-                        }
+                        },
                     )
                     template_data = {
                         key: f"{{{{ .{namespace_no_dash}_{key} }}}}"
@@ -273,7 +272,7 @@ async def _update_config(
                     content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
         except Exception as exception:
             logger.error(
-                "Error while processing source %s.%s: %s", source.meta.namespace, source.meta.name, exception
+                "Error while processing source %s.%s: %s", source.meta.namespace, source.meta.name, exception,
             )
             kopf.event(
                 source,
@@ -299,8 +298,8 @@ async def _update_config(
                 config_map = {
                     "data": {
                         config.spec["configmapName"]: yaml.dump(
-                            content, default_flow_style=False, Dumper=yaml.SafeDumper
-                        )
+                            content, default_flow_style=False, Dumper=yaml.SafeDumper,
+                        ),
                     },
                 }
 
@@ -345,8 +344,8 @@ async def _update_config(
                             "template": {
                                 "data": {
                                     config.spec["configmapName"]: yaml.dump(
-                                        content, default_flow_style=False, Dumper=yaml.SafeDumper
-                                    )
+                                        content, default_flow_style=False, Dumper=yaml.SafeDumper,
+                                    ),
                                 },
                             },
                         },

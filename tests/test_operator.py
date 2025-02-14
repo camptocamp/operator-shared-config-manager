@@ -37,13 +37,13 @@ def install_operator(scope="session"):
     for _ in range(100):
         pods = json.loads(
             subprocess.run(
-                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE
-            ).stdout
+                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE,
+            ).stdout,
         )
         if (
             len(pods["items"]) == 1
             and len(
-                [c for c in pods["items"][0].get("status", {}).get("conditions", {}) if c["status"] != "True"]
+                [c for c in pods["items"][0].get("status", {}).get("conditions", {}) if c["status"] != "True"],
             )
             == 0
         ):
@@ -58,8 +58,8 @@ def install_operator(scope="session"):
     for _ in range(100):
         pods = json.loads(
             subprocess.run(
-                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE
-            ).stdout
+                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE,
+            ).stdout,
         )
         if (
             len(pods["items"]) == 1
@@ -107,7 +107,7 @@ _CONFIG_MAP_EMPTY = {
             [
                 "sources: {}",
                 "",
-            ]
+            ],
         ),
     },
 }
@@ -124,7 +124,7 @@ _EXTERNAL_SECRET = {
                     "metadataPolicy": "None",
                 },
                 "secretKey": "source_secret_key",
-            }
+            },
         ],
         "refreshInterval": "10s",
         "secretStoreRef": {"kind": "SecretStore", "name": "keyvault"},
@@ -150,8 +150,8 @@ _EXTERNAL_SECRET = {
                             "      type: shell",
                             "    type: git",
                             "",
-                        ]
-                    )
+                        ],
+                    ),
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
@@ -176,8 +176,8 @@ _EXTERNAL_SECRET_EMPTY = {
                         [
                             "sources: {}",
                             "",
-                        ]
-                    )
+                        ],
+                    ),
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
@@ -199,7 +199,7 @@ _EXTERNAL_SECRET_MIX = {
                     "metadataPolicy": "None",
                 },
                 "secretKey": "source_secret_key",
-            }
+            },
         ],
         "refreshInterval": "10s",
         "secretStoreRef": {"kind": "SecretStore", "name": "keyvault"},
@@ -236,8 +236,8 @@ _EXTERNAL_SECRET_MIX = {
                             "      type: shell",
                             "    type: git",
                             "",
-                        ]
-                    )
+                        ],
+                    ),
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
@@ -291,7 +291,7 @@ def test_operator(
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(["kubectl", "apply", f"--filename=tests/source_{source_version}.yaml"], check=True)
     subprocess.run(
-        ["kubectl", "apply", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True
+        ["kubectl", "apply", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True,
     )
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
     subprocess.run(["kubectl", "apply", f"--filename=tests/config_{config_version}.yaml"], check=True)
@@ -305,7 +305,7 @@ def test_operator(
                     ["kubectl", "get", expected_type, "test2", "--output=json"],
                     check=True,
                     stdout=subprocess.PIPE,
-                ).stdout
+                ).stdout,
             )
             break
         except subprocess.CalledProcessError:
@@ -328,7 +328,7 @@ def test_operator(
                 ["kubectl", "get", expected_type, "test2", "--output=json"],
                 check=True,
                 stdout=subprocess.PIPE,
-            ).stdout
+            ).stdout,
         )
         filtered_generated_object = {k: v for k, v in generated_object.items() if k != "metadata"}
         if filtered_generated_object == expected_empty:
@@ -348,7 +348,7 @@ def test_operator(
                     ["kubectl", "get", expected_type, "test2", "--output=json"],
                     check=True,
                     stdout=subprocess.PIPE,
-                ).stdout
+                ).stdout,
             )
             time.sleep(1)
         except:
@@ -359,5 +359,5 @@ def test_operator(
     # Remove the other source, to be cleaned
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(
-        ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True
+        ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True,
     )
