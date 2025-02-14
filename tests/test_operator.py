@@ -37,13 +37,19 @@ def install_operator(scope="session"):
     for _ in range(100):
         pods = json.loads(
             subprocess.run(
-                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE,
+                ["kubectl", "get", "pods", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
             ).stdout,
         )
         if (
             len(pods["items"]) == 1
             and len(
-                [c for c in pods["items"][0].get("status", {}).get("conditions", {}) if c["status"] != "True"],
+                [
+                    c
+                    for c in pods["items"][0].get("status", {}).get("conditions", {})
+                    if c["status"] != "True"
+                ],
             )
             == 0
         ):
@@ -58,7 +64,9 @@ def install_operator(scope="session"):
     for _ in range(100):
         pods = json.loads(
             subprocess.run(
-                ["kubectl", "get", "pods", "--output=json"], check=True, stdout=subprocess.PIPE,
+                ["kubectl", "get", "pods", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
             ).stdout,
         )
         if (
@@ -291,7 +299,8 @@ def test_operator(
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(["kubectl", "apply", f"--filename=tests/source_{source_version}.yaml"], check=True)
     subprocess.run(
-        ["kubectl", "apply", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True,
+        ["kubectl", "apply", f"--filename=tests/source_other_{source_other_version}.yaml"],
+        check=True,
     )
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=config"], check=True)
     subprocess.run(["kubectl", "apply", f"--filename=tests/config_{config_version}.yaml"], check=True)
@@ -359,5 +368,6 @@ def test_operator(
     # Remove the other source, to be cleaned
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=source"], check=True)
     subprocess.run(
-        ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"], check=True,
+        ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"],
+        check=True,
     )

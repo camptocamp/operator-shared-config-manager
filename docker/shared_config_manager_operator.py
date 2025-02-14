@@ -97,7 +97,10 @@ async def startup(settings: kopf.OperatorSettings, logger: kopf.Logger, **_) -> 
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigconfigs{_ENVIRONMENT}")
 async def shared_config_configs(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **_,
+    body: kopf.Body,
+    meta: kopf.Meta,
+    logger: kopf.Logger,
+    **_,
 ) -> dict[None, kopf.Body]:
     """Index the configs."""
     logger.info("Index config, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
@@ -109,7 +112,10 @@ async def shared_config_configs(
 
 @kopf.index("camptocamp.com", "v4", f"sharedconfigsources{_ENVIRONMENT}")
 async def shared_config_sources(
-    body: kopf.Body, meta: kopf.Meta, logger: kopf.Logger, **kwargs,
+    body: kopf.Body,
+    meta: kopf.Meta,
+    logger: kopf.Logger,
+    **kwargs,
 ) -> dict[None, kopf.Body]:
     """Index the sources."""
     logger.info("Index source, name: %s, namespace: %s", meta.get("name"), meta.get("namespace"))
@@ -272,7 +278,10 @@ async def _update_config(
                     content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
         except Exception as exception:
             logger.error(
-                "Error while processing source %s.%s: %s", source.meta.namespace, source.meta.name, exception,
+                "Error while processing source %s.%s: %s",
+                source.meta.namespace,
+                source.meta.name,
+                exception,
             )
             kopf.event(
                 source,
@@ -298,7 +307,9 @@ async def _update_config(
                 config_map = {
                     "data": {
                         config.spec["configmapName"]: yaml.dump(
-                            content, default_flow_style=False, Dumper=yaml.SafeDumper,
+                            content,
+                            default_flow_style=False,
+                            Dumper=yaml.SafeDumper,
                         ),
                     },
                 }
@@ -344,7 +355,9 @@ async def _update_config(
                             "template": {
                                 "data": {
                                     config.spec["configmapName"]: yaml.dump(
-                                        content, default_flow_style=False, Dumper=yaml.SafeDumper,
+                                        content,
+                                        default_flow_style=False,
+                                        Dumper=yaml.SafeDumper,
                                     ),
                                 },
                             },
