@@ -82,6 +82,8 @@ repos:
           - --tool=ruff
           - --die-on-tool-error
           - --output-format=pylint
+          - --profile=docker/.prospector.yaml
+          - --profile=utils:autofix
         additional_dependencies:
           - prospector-profile-duplicated==1.10.4 # pypi
           - prospector-profile-utils==1.20.2 # pypi
