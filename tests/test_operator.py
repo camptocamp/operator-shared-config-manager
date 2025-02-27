@@ -256,32 +256,39 @@ _EXTERNAL_SECRET_MIX = {
 
 
 @pytest.mark.parametrize(
-    "source_version,source_other_version,config_version,expected_type,expected_data,expected_empty",
+    (
+        "source_version",
+        "source_other_version",
+        "config_version",
+        "expected_type",
+        "expected_data",
+        "expected_empty",
+    ),
     [
-        [
+        (
             "v3",
             "v3",
             "v3",
             "configmap",
             _CONFIG_MAP,
             _CONFIG_MAP_EMPTY,
-        ],
-        [
+        ),
+        (
             "v4",
             "v4",
             "v4",
             "externalsecret",
             _EXTERNAL_SECRET,
             _EXTERNAL_SECRET_EMPTY,
-        ],
-        [
+        ),
+        (
             "mix",
             "v4",
             "v4",
             "externalsecret",
             _EXTERNAL_SECRET_MIX,
             _EXTERNAL_SECRET_EMPTY,
-        ],
+        ),
     ],
 )
 def test_operator(

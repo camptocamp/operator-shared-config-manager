@@ -132,7 +132,11 @@ async def on_source_deleted(body: kopf.Body, meta: kopf.Meta, logger: kopf.Logge
     await _fill_changed_configs(body, **kwargs)
 
 
-async def _fill_changed_configs(source: kopf.Body, shared_config_configs: kopf.Index, **_: Any) -> None:  # pylint: disable=redefined-outer-name
+async def _fill_changed_configs(
+    source: kopf.Body,
+    shared_config_configs: kopf.Index[Any, Any],  # pylint: disable=redefined-outer-name
+    **_: Any,
+) -> None:
     global _LOCK  # pylint: disable=global-variable-not-assigned # noqa: PLW0602
     async with _LOCK:
         for config in shared_config_configs.get(None, []):
@@ -183,7 +187,7 @@ def _match(source: kopf.Body, config: kopf.Body) -> bool:
 async def _update_config(
     config: kopf.Body,
     status: list[list[str]] | None,
-    shared_config_sources: kopf.Index,  # pylint: disable=redefined-outer-name
+    shared_config_sources: kopf.Index[Any, Any],  # pylint: disable=redefined-outer-name
     logger: kopf.Logger,
     **_: Any,
 ) -> list[list[str]] | None:
