@@ -86,7 +86,7 @@ repos:
           - --profile=docker/.prospector.yaml
         additional_dependencies:
           - prospector-profile-duplicated==1.10.4 # pypi
-          - prospector-profile-utils==1.21.4 # pypi
+          - prospector-profile-utils==1.21.6 # pypi
           - ruff==0.9.4 # pypi
       - id: prospector
         args:
@@ -95,7 +95,7 @@ repos:
           - --profile=utils:tests
           - --profile=utils:pre-commit
         additional_dependencies:
-          - prospector-profile-utils==1.21.4 # pypi
+          - prospector-profile-utils==1.21.6 # pypi
   - repo: https://github.com/sbrunner/jsonschema-validator
     rev: 1.0.0
     hooks:
