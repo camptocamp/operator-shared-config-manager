@@ -4,9 +4,6 @@ inherits:
   - utils:fix
   - utils:no-design-checks
 
-pyroma:
-  run: false
-
 mypy:
   options:
     python_version: '3.10'
@@ -14,3 +11,5 @@ mypy:
 ruff:
   disable:
     - TRY400 # Use `logging.exception` instead of `logging.error`, catch for kopf Logger
+pyroma:
+  run: false
