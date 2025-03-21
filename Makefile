@@ -11,6 +11,7 @@ help: ## Display this help message
 .PHONY: build
 build: ## Build the Docker image
 	docker build --tag=camptocamp/sharedconfigmanager-operator docker
+	docker tag camptocamp/sharedconfigmanager-operator ghcr.io/camptocamp/sharedconfigmanager-operator
 
 .PHONY: build-test
 build-test: ## Build the Docker image used to run the tests

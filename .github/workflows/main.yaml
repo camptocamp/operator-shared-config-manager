@@ -80,7 +80,7 @@ jobs:
           kubectl apply -f /tmp/external-secrets-crd.yaml
 
       - name: Import my image
-        run: k3d image import camptocamp/sharedconfigmanager-operator:latest --cluster=test-cluster
+        run: k3d image import ghcr.io/camptocamp/sharedconfigmanager-operator:latest --cluster=test-cluster
 
       - run: helm template test --namespace=default --set=image.tag=latest . > template.yaml
       - run: kubectl apply -f template.yaml
