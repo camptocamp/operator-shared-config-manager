@@ -22,4 +22,5 @@
       matchDepNames: ['python'],
     },
   ],
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
 }
