@@ -120,7 +120,7 @@ _CONFIG_MAP_EMPTY = {
     },
 }
 _EXTERNAL_SECRET = {
-    "apiVersion": "external-secrets.io/v1beta1",
+    "apiVersion": "external-secrets.io/v1",
     "kind": "ExternalSecret",
     "spec": {
         "data": [
@@ -168,7 +168,7 @@ _EXTERNAL_SECRET = {
     },
 }
 _EXTERNAL_SECRET_EMPTY = {
-    "apiVersion": "external-secrets.io/v1beta1",
+    "apiVersion": "external-secrets.io/v1",
     "kind": "ExternalSecret",
     "spec": {
         "data": [],
@@ -195,7 +195,7 @@ _EXTERNAL_SECRET_EMPTY = {
 }
 
 _EXTERNAL_SECRET_MIX = {
-    "apiVersion": "external-secrets.io/v1beta1",
+    "apiVersion": "external-secrets.io/v1",
     "kind": "ExternalSecret",
     "spec": {
         "data": [
