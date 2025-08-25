@@ -12,7 +12,7 @@
     'github>camptocamp/gs-renovate-config-preset:security.json5#1.4.3',
   ],
   kubernetes: {
-    fileMatch: ['templates/.+\\.yaml$', 'tests/.*expected\\.yaml$'],
+    managerFilePatterns: ['/templates/.+\\.yaml$/', '/tests/.*expected\\.yaml$/'],
   },
   packageRules: [
     /** Disable upgrading the supported Python version */
