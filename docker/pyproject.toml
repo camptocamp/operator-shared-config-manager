@@ -9,26 +9,26 @@ extend-select = ["UP", "I", "S", "B", "ALL"]
 "**/test_*.py" = ["ANN", "ARG", "ASYNC", "BLE001", "D", "DTZ", "E722", "FBT003", "INP001", "N", "PGH003", "PLC", "PLR2004", "PLW0603", "PLW1641", "RET", "RUF012", "RUF100", "S104", "S105", "S106", "S108", "S113", "S324", "S603", "S607", "S608", "SLF", "TRY003", "TRY301"]
 "**/*_test.py" = ["ANN", "ARG", "ASYNC", "BLE001", "D", "DTZ", "E722", "FBT003", "INP001", "N", "PGH003", "PLC", "PLR2004", "PLW0603", "PLW1641", "RET", "RUF012", "RUF100", "S104", "S105", "S106", "S108", "S113", "S324", "S603", "S607", "S608", "SLF", "TRY003", "TRY301"]
 
-[tool.poetry]
-name = 'operator-shared-config-manager'
-version = '0.0.0'
-description = 'Not used'
-authors = []
-
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-kubernetes = "33.1.0"
+kubernetes = "34.1.0"
 kopf = "1.38.0"
 pyyaml = "6.0.3"
 requests = "2.32.5"
-urllib3 = "2.5.0"
 aiohttp = "3.12.15"
 idna = "3.10"
 certifi = "2025.8.3"
 python-json-logger = "3.3.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 prospector = { version = "1.17.3", extras = ["with_bandit", "with_mypy", "with_ruff"] }
 prospector-profile-utils = "1.26.5"
 prospector-profile-duplicated = "1.10.5"
 types-pyyaml = "6.0.12.20250915"
+
+[project]
+name = 'operator-shared-config-manager'
+version = '0.0.0'
+description = 'Not used'
+authors = []
+dynamic = ['dependencies', 'version', 'requires-python']
