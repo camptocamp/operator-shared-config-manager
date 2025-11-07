@@ -18,7 +18,7 @@ requests = "2.32.5"
 aiohttp = "3.13.2"
 idna = "3.11"
 certifi = "2025.10.5"
-python-json-logger = "3.3.0"
+python-json-logger = "4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 prospector = { version = "1.17.3", extras = ["with_bandit", "with_mypy", "with_ruff"] }
