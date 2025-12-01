@@ -1,5 +1,5 @@
 c2cciutils==1.7.5
-pytest==8.4.2
+pytest==9.0.1
 pre-commit==4.3.0
 # To fix audit
 poetry-dynamic-versioning==1.9.1
