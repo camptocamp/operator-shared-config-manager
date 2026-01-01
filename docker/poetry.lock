@@ -695,14 +695,14 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "kopf"
-version = "1.38.0"
+version = "1.39.1"
 description = "Kubernetes Operator Pythonic Framework (Kopf)"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "kopf-1.38.0-py3-none-any.whl", hash = "sha256:2384b8021032d9f87e53a6b46097c47e566d9280c838809483698640e1b36df0"},
-    {file = "kopf-1.38.0.tar.gz", hash = "sha256:7b9f83240269636e00e4b11e9c7c8afbfefba3d3326ac2d2aa7904d35c4f89cd"},
+    {file = "kopf-1.39.1-py3-none-any.whl", hash = "sha256:763623bc3b2a046b0971d0733009e1f171a67cf76b51f9050dc989dc5e787431"},
+    {file = "kopf-1.39.1.tar.gz", hash = "sha256:6062e9bd327911af7f7ba06e881114ebc4f88c31fae612812e4c6ed23fb19017"},
 ]
 
 [package.dependencies]
@@ -710,7 +710,7 @@ aiohttp = [
     {version = ">=3.9.0", markers = "python_version >= \"3.12\""},
     {version = "*", markers = "python_version < \"3.12\""},
 ]
-click = "*"
+click = ">=8.2.0"
 iso8601 = "*"
 python-json-logger = "*"
 pyyaml = "*"
@@ -2135,4 +2135,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "2c0ccb13460d1bc5127715518e992a9ded95a944a404504b6e1a760b3e460ded"
+content-hash = "b1962f620f7eac65d512ae73ffede85ba7eff53bcf43c1118b2721496188c3ce"
