@@ -1,6 +1,6 @@
 c2cciutils==1.7.5
-pytest==9.0.1
-pre-commit==4.5.0
+pytest==9.0.2
+pre-commit==4.5.1
 # To fix audit
 poetry-dynamic-versioning==1.9.1
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
