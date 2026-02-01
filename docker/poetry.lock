@@ -696,20 +696,20 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "kopf"
-version = "1.39.1"
+version = "1.42.2"
 description = "Kubernetes Operator Pythonic Framework (Kopf)"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "kopf-1.39.1-py3-none-any.whl", hash = "sha256:763623bc3b2a046b0971d0733009e1f171a67cf76b51f9050dc989dc5e787431"},
-    {file = "kopf-1.39.1.tar.gz", hash = "sha256:6062e9bd327911af7f7ba06e881114ebc4f88c31fae612812e4c6ed23fb19017"},
+    {file = "kopf-1.42.2-py3-none-any.whl", hash = "sha256:29d85eeaf8127eea8fa651b960af635058597e10fc27d34ba11d2326879b6506"},
+    {file = "kopf-1.42.2.tar.gz", hash = "sha256:16304e6e3d731b1ae3455e41fbea95a44a30e606819e06a55705df8fd9dc4ef6"},
 ]
 
 [package.dependencies]
 aiohttp = [
-    {version = "*"},
     {version = ">=3.9.0", markers = "python_version >= \"3.12\""},
+    {version = "*", markers = "python_version < \"3.12\""},
 ]
 click = ">=8.2.0"
 iso8601 = "*"
@@ -1491,9 +1491,9 @@ files = [
 astroid = ">=3.3.8,<=3.4.0.dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
-    {version = ">=0.2", markers = "python_version < \"3.11\""},
     {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
-    {version = ">=0.3.6", markers = "python_version == \"3.11\""},
+    {version = ">=0.2", markers = "python_version < \"3.11\""},
+    {version = ">=0.3.6", markers = "python_version >= \"3.11\""},
 ]
 isort = ">=4.2.5,<5.13 || >5.13,<7"
 mccabe = ">=0.6,<0.8"
@@ -2136,4 +2136,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.13"
-content-hash = "99fffed8e26b06fc3046ba7e3cd4f4171929aeee3ef4426b3a1c01535388c24e"
+content-hash = "270c15e6b2b187e580a2d382d843d8af5299ff56c7228c0e4b2fbd5ab8e5a425"
