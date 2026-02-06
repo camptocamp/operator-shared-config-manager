@@ -230,7 +230,7 @@ async def _update_config(
                     ),
                 )
                 if gen_external_secret:
-                    namespace = source.meta.namespace if source.meta.namespace else "unknown-namespace"
+                    namespace = source.meta.namespace or "unknown-namespace"
                     namespace_no_dash = namespace.replace("-", "_")
                     external_secrets_data.update(
                         {
