@@ -12,7 +12,7 @@ extend-select = ["UP", "I", "S", "B", "ALL"]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 kubernetes = "35.0.0"
-kopf = "1.42.3"
+kopf = "1.43.0"
 pyyaml = "6.0.3"
 requests = "2.32.5"
 aiohttp = "3.13.3"
@@ -22,8 +22,8 @@ python-json-logger = "4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 prospector = { version = "1.18.0", extras = ["with_bandit", "with_mypy", "with_ruff"] }
-prospector-profile-utils = "1.26.5"
-prospector-profile-duplicated = "1.11.0"
+prospector-profile-utils = "1.27.0"
+prospector-profile-duplicated = "1.12.0"
 types-pyyaml = "6.0.12.20250915"
 
 [project]
