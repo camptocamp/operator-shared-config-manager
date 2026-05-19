@@ -1,3 +1,11 @@
+
+[project]
+name = 'operator-shared-config-manager'
+version = '0.0.0'
+description = 'Not used'
+authors = []
+dynamic = ['dependencies', 'version', 'requires-python']
+
 [tool.ruff.lint]
 select = []
 ignore = ["ANN401", "C90", "COM812", "D100", "D104", "D105", "D107", "D200", "D202", "D207", "D208", "D212", "E501", "EM101", "EM102", "ERA001", "FA", "FBT001", "FBT002", "FIX002", "I001", "PERF203", "PLR09", "PLR2004", "Q000", "S101", "SIM105", "T201", "TD002", "TRY400", "W293"]
@@ -16,7 +24,7 @@ kopf = "1.44.5"
 pyyaml = "6.0.3"
 requests = "2.33.1"
 aiohttp = "3.13.5"
-idna = "3.13"
+idna = "3.15"
 certifi = "2026.4.22"
 python-json-logger = "4.1.0"
 
@@ -25,10 +33,3 @@ prospector = { version = "1.18.0", extras = ["with_bandit", "with_mypy", "with_r
 prospector-profile-utils = "1.27.0"
 prospector-profile-duplicated = "1.12.0"
 types-pyyaml = "6.0.12.20260408"
-
-[project]
-name = 'operator-shared-config-manager'
-version = '0.0.0'
-description = 'Not used'
-authors = []
-dynamic = ['dependencies', 'version', 'requires-python']
