@@ -20,7 +20,7 @@ extend-select = ["UP", "I", "S", "B", "ALL"]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 kubernetes = "36.0.2"
-kopf = "1.44.5"
+kopf = "1.44.6"
 pyyaml = "6.0.3"
 requests = "2.34.2"
 aiohttp = "3.14.0"
