@@ -30,14 +30,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: camptocamp/initialise-gopass-summon-action@v2
+      - uses: camptocamp/initialise-gopass-summon-action@17703c87720ba3766abc90da60b437783b530d93 # v2.0.1
         with:
           ci-gpg-private-key: ${{secrets.CI_GPG_PRIVATE_KEY}}
           github-gopass-ci-token: ${{secrets.GOPASS_CI_GITHUB_TOKEN}}
           patterns: docker
         if: env.HAS_SECRETS == 'HAS_SECRETS'
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.13'
       - run: python3 -m pip install --requirement=ci/requirements.txt
@@ -50,7 +50,7 @@ jobs:
       - run: pre-commit run --all-files --color=always
       - run: git diff --exit-code --patch > /tmp/pre-commit.patch; git diff --color; git reset --hard || true
         if: failure()
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Apply pre-commit fix.patch
           path: /tmp/pre-commit.patch
@@ -66,7 +66,7 @@ jobs:
         run: make prospector
 
       - name: Install helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           version: 4.2.2
       - run: helm lint .
@@ -97,14 +97,14 @@ jobs:
         if: env.HAS_SECRETS == 'HAS_SECRETS'
       - run: git diff --exit-code --patch > /tmp/dpkg-versions.patch; git diff --color; git reset --hard || true
         if: failure()
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Update dpkg versions list.patch
           path: /tmp/dpkg-versions.patch
           retention-days: 1
         if: failure()
       - name: Trigger changelog workflow
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |-
             if (process.env.GITHUB_REF_TYPE == 'tag') {
