@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - run: docker system prune --all --force
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -42,7 +42,7 @@ jobs:
           python-version: '3.13'
       - run: python3 -m pip install --requirement=ci/requirements.txt
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -68,7 +68,7 @@ jobs:
       - name: Install helm
         uses: azure/setup-helm@v5
         with:
-          version: 3.10.0
+          version: 4.2.2
       - run: helm lint .
 
       - name: Setup k3s/k3d
