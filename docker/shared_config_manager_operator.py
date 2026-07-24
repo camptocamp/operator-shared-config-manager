@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2021-2026, Camptocamp SA
 
 import asyncio
 import logging
