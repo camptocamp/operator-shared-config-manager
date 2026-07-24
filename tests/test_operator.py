@@ -111,12 +111,7 @@ _CONFIG_MAP_EMPTY = {
     "apiVersion": "v1",
     "kind": "ConfigMap",
     "data": {
-        "test.yaml": "\n".join(
-            [
-                "sources: {}",
-                "",
-            ],
-        ),
+        "test.yaml": "sources: {}\n",
     },
 }
 _EXTERNAL_SECRET = {
@@ -142,24 +137,19 @@ _EXTERNAL_SECRET = {
             "name": "test2",
             "template": {
                 "data": {
-                    "test.yaml": "\n".join(
-                        [
-                            "sources:",
-                            "  test:",
-                            "    branch: master",
-                            "    key: admin12341",
-                            "    repo: git@github.com:camptocamp/test.git",
-                            "    sub_dir: dir",
-                            "    template_engines:",
-                            "    - data:",
-                            "        SECRET: '{{ .source_secret_key }}'",
-                            "        TEST: test {{`{{`}}",
-                            "      environment_variables: true",
-                            "      type: shell",
-                            "    type: git",
-                            "",
-                        ],
-                    ),
+                    "test.yaml": "sources:\n"
+                    "  test:\n"
+                    "    branch: master\n"
+                    "    key: admin12341\n"
+                    "    repo: git@github.com:camptocamp/test.git\n"
+                    "    sub_dir: dir\n"
+                    "    template_engines:\n"
+                    "    - data:\n"
+                    "        SECRET: '{{ .source_secret_key }}'\n"
+                    "        TEST: test {{`{{`}}\n"
+                    "      environment_variables: true\n"
+                    "      type: shell\n"
+                    "    type: git\n",
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
@@ -180,12 +170,7 @@ _EXTERNAL_SECRET_EMPTY = {
             "name": "test2",
             "template": {
                 "data": {
-                    "test.yaml": "\n".join(
-                        [
-                            "sources: {}",
-                            "",
-                        ],
-                    ),
+                    "test.yaml": "sources: {}\n",
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
@@ -217,35 +202,30 @@ _EXTERNAL_SECRET_MIX = {
             "name": "test2",
             "template": {
                 "data": {
-                    "test.yaml": "\n".join(
-                        [
-                            "sources:",
-                            "  test-v3:",
-                            "    branch: master",
-                            "    key: admin1234",
-                            "    repo: git@github.com:camptocamp/test.git",
-                            "    sub_dir: dir",
-                            "    template_engines:",
-                            "    - data:",
-                            "        TEST: test",
-                            "      environment_variables: true",
-                            "      type: shell",
-                            "    type: git",
-                            "  test-v4:",
-                            "    branch: master",
-                            "    key: admin12341",
-                            "    repo: git@github.com:camptocamp/test.git",
-                            "    sub_dir: dir",
-                            "    template_engines:",
-                            "    - data:",
-                            "        SECRET: '{{ .source_secret_key }}'",
-                            "        TEST: test {{`{{`}}",
-                            "      environment_variables: true",
-                            "      type: shell",
-                            "    type: git",
-                            "",
-                        ],
-                    ),
+                    "test.yaml": "sources:\n"
+                    "  test-v3:\n"
+                    "    branch: master\n"
+                    "    key: admin1234\n"
+                    "    repo: git@github.com:camptocamp/test.git\n"
+                    "    sub_dir: dir\n"
+                    "    template_engines:\n"
+                    "    - data:\n"
+                    "        TEST: test\n"
+                    "      environment_variables: true\n"
+                    "      type: shell\n"
+                    "    type: git\n"
+                    "  test-v4:\n"
+                    "    branch: master\n"
+                    "    key: admin12341\n"
+                    "    repo: git@github.com:camptocamp/test.git\n"
+                    "    sub_dir: dir\n"
+                    "    template_engines:\n"
+                    "    - data:\n"
+                    "        SECRET: '{{ .source_secret_key }}'\n"
+                    "        TEST: test {{`{{`}}\n"
+                    "      environment_variables: true\n"
+                    "      type: shell\n"
+                    "    type: git\n",
                 },
                 "engineVersion": "v2",
                 "mergePolicy": "Replace",
