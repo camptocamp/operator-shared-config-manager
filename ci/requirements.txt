@@ -1,6 +1,6 @@
 c2cciutils==1.7.5
 pytest==9.1.1
-pre-commit==4.6.0
+pre-commit==4.6.1
 # To fix audit
 poetry-dynamic-versioning==1.10.0
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
@@ -10,4 +10,4 @@ urllib3>=1.26.17 # not directly required, pinned by Snyk to avoid a vulnerabilit
 cryptography>=42.0.2 # not directly required, pinned by Snyk to avoid a vulnerability
 idna>=3.15 # not directly required, pinned by Snyk to avoid a vulnerability
 jinja2>=3.1.4 # not directly required, pinned by Snyk to avoid a vulnerability
-tag-publish==1.1.1
+tag-publish==1.2.2
