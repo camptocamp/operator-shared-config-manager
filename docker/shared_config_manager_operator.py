@@ -218,13 +218,11 @@ async def _update_config(
     # different namespaces do not conflict. The conflict is detected on this generated key and
     # not on the raw source name, to not report artificial conflicts.
     source_starts: list[tuple[kopf.Body, str]] = []
+    start_counts: dict[str, int] = {}
     for source in matched_sources:
         namespace = source.meta.namespace or "<undefined>"
         start = f"{namespace}-{source.spec['name']}" if namespace_prefix else source.spec["name"]
         source_starts.append((source, start))
-
-    start_counts: dict[str, int] = {}
-    for _, start in source_starts:
         start_counts[start] = start_counts.get(start, 0) + 1
 
     # Compute the key used in the generated content for each source, prefixing it with the
