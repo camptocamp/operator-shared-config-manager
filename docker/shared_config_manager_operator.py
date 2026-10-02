@@ -195,86 +195,158 @@ async def _update_config(
     content: dict[str, Any] = {config.spec["property"]: {}}
     external_secrets_data: dict[str, dict[str, Any]] = {}
     gen_external_secret: bool = config.spec.get("outputKind", "ConfigMap") == "ExternalSecret"
+    namespace_prefix: bool = config.spec.get("namespacePrefix", False)
     sources: set[tuple[str, str, str]] = set()
-    for source in shared_config_sources.get(None, []):
+
+    # Sort the sources to have a deterministic result, especially on name conflict.
+    sorted_sources = sorted(
+        shared_config_sources.get(None, []),
+        key=lambda source: (source.meta.get("namespace") or "", source.meta.get("name") or ""),
+    )
+
+    # First pass: collect the valid and matching sources to be able to detect the name conflicts.
+    matched_sources: list[kopf.Body] = []
+    for source in sorted_sources:
+        assert isinstance(source, kopf.Body)
+        if not _validate_source(source):
+            continue
+        if _match(source, config):
+            matched_sources.append(source)
+
+    name_counts: dict[str, int] = {}
+    for source in matched_sources:
+        name = source.spec["name"]
+        name_counts[name] = name_counts.get(name, 0) + 1
+
+    # Compute the key used in the generated content for each source, prefixing it with the
+    # namespace on conflict, or always if requested, to not silently lose a source content.
+    used_keys: set[str] = set()
+    matched_with_keys: list[tuple[kopf.Body, str]] = []
+    for source in matched_sources:
+        name = source.spec["name"]
+        namespace = source.meta.namespace or "<undefined>"
+        meta_name = source.meta.name or "<undefined>"
+        has_conflict = name_counts[name] > 1
+        if namespace_prefix or has_conflict:
+            key = f"{namespace}-{name}"
+            if key in used_keys:
+                # Same namespace and same source name, fallback on the metadata name.
+                key = f"{namespace}-{meta_name}-{name}"
+        else:
+            key = name
+        used_keys.add(key)
+        matched_with_keys.append((source, key))
+        if has_conflict:
+            others = ", ".join(
+                f"{other.meta.namespace or '<undefined>'}:{other.meta.name or '<undefined>'}"
+                for other in matched_sources
+                if other is not source and other.spec["name"] == name
+            )
+            logger.error(
+                "Conflicting source name '%s' used by config %s.%s, the source %s:%s is renamed to '%s' "
+                "(also defined by %s).",
+                name,
+                config.meta.namespace,
+                config.meta.name,
+                namespace,
+                meta_name,
+                key,
+                others,
+            )
+            kopf.event(
+                source,
+                type="SharedConfigOperator",
+                reason="Error",
+                message=f"Conflicting source name '{name}' (also defined by {others}), renamed to '{key}'.",
+            )
+            kopf.event(
+                config,
+                type="SharedConfigOperator",
+                reason="Error",
+                message=(
+                    f"Conflicting source name '{name}' from {namespace}:{meta_name} "
+                    f"(also defined by {others}), renamed to '{key}'."
+                ),
+            )
+
+    # Second pass: build the content by using the previously computed keys.
+    for source, key in matched_with_keys:
         try:
-            assert isinstance(source, kopf.Body)
-            if not _validate_source(source):
-                continue
-            if _match(source, config):
-                logger.debug(
-                    "Source %s.%s:%s used by config %s.%s",
-                    source.meta.namespace,
-                    source.meta.name,
-                    source.spec["name"],
-                    config.meta.namespace,
-                    config.meta.name,
-                )
-                kopf.event(
-                    source,
-                    type="SharedConfigOperator",
-                    reason="Used",
-                    message=f"Used by SharedConfigConfig {config.meta.namespace}:{config.meta.name}",
-                )
-                kopf.event(
-                    config,
-                    type="SharedConfigOperator",
-                    reason="Use",
-                    message=f"Use SharedConfigSource {source.meta.namespace}:{source.meta.name}",
-                )
+            logger.debug(
+                "Source %s.%s:%s used by config %s.%s",
+                source.meta.namespace,
+                source.meta.name,
+                key,
+                config.meta.namespace,
+                config.meta.name,
+            )
+            kopf.event(
+                source,
+                type="SharedConfigOperator",
+                reason="Used",
+                message=f"Used by SharedConfigConfig {config.meta.namespace}:{config.meta.name}",
+            )
+            kopf.event(
+                config,
+                type="SharedConfigOperator",
+                reason="Use",
+                message=f"Use SharedConfigSource {source.meta.namespace}:{source.meta.name}",
+            )
 
-                sources.add(
-                    (
-                        source.meta.namespace or "<undefined>",
-                        source.meta.name or "<undefined>",
-                        source.meta.get("resourceVersion", "<undefined>"),
-                    ),
+            sources.add(
+                (
+                    source.meta.namespace or "<undefined>",
+                    source.meta.name or "<undefined>",
+                    source.meta.get("resourceVersion", "<undefined>"),
+                ),
+            )
+            if gen_external_secret:
+                namespace = source.meta.namespace or "unknown-namespace"
+                namespace_no_dash = namespace.replace("-", "_")
+                external_secrets_data.update(
+                    {
+                        f"{namespace_no_dash}_{secret_var}": {
+                            "secretKey": f"{namespace_no_dash}_{secret_var}",
+                            "remoteRef": {
+                                "key": (
+                                    f"{config.spec.get('externalSecretPrefix')}-{namespace}-{secret_value}"
+                                ),
+                            },
+                        }
+                        for secret_var, secret_value in source.spec.get("external_secret", {}).items()
+                    },
                 )
-                if gen_external_secret:
-                    namespace = source.meta.namespace or "unknown-namespace"
-                    namespace_no_dash = namespace.replace("-", "_")
-                    external_secrets_data.update(
-                        {
-                            f"{namespace_no_dash}_{key}": {
-                                "secretKey": f"{namespace_no_dash}_{key}",
-                                "remoteRef": {
-                                    "key": f"{config.spec.get('externalSecretPrefix')}-{namespace}-{value}",
-                                },
-                            }
-                            for key, value in source.spec.get("external_secret", {}).items()
-                        },
+                template_data = {
+                    secret_var: f"{{{{ .{namespace_no_dash}_{secret_var} }}}}"
+                    for secret_var in source.spec.get("external_secret", {})
+                }
+                try:
+                    content[config.spec["property"]][key] = yaml.load(
+                        yaml.dump(source.spec["content"], Dumper=yaml.SafeDumper)
+                        .replace("{{", "{{{{`{{{{`}}}}")
+                        .format(**template_data),
+                        Loader=yaml.SafeLoader,
                     )
-                    template_data = {
-                        key: f"{{{{ .{namespace_no_dash}_{key} }}}}"
-                        for key in source.spec.get("external_secret", {})
-                    }
-                    try:
-                        content[config.spec["property"]][source.spec["name"]] = yaml.load(
-                            yaml.dump(source.spec["content"], Dumper=yaml.SafeDumper)
-                            .replace("{{", "{{{{`{{{{`}}}}")
-                            .format(**template_data),
-                            Loader=yaml.SafeLoader,
-                        )
-                    except (KeyError, ValueError) as exception:
-                        content = source.spec["content"]
-                        data = yaml.dump(template_data, Dumper=yaml.SafeDumper)
-                        logger.error(
-                            "Error while processing source %s.%s, unable to format content:\n%s\nwith:\n%s\nerror:%s",
-                            source.meta.namespace,
-                            source.meta.name,
-                            content,
-                            data,
-                            exception,
-                        )
-                        kopf.event(
-                            source,
-                            type="SharedConfigOperator",
-                            reason="Error",
-                            message=f"Error while processing source, unable to format content:\n{content}\nwith:\n{data}\nerror:{exception}",
-                        )
+                except (KeyError, ValueError) as exception:
+                    content = source.spec["content"]
+                    data = yaml.dump(template_data, Dumper=yaml.SafeDumper)
+                    logger.error(
+                        "Error while processing source %s.%s, unable to format content:\n%s\nwith:\n%s\nerror:%s",
+                        source.meta.namespace,
+                        source.meta.name,
+                        content,
+                        data,
+                        exception,
+                    )
+                    kopf.event(
+                        source,
+                        type="SharedConfigOperator",
+                        reason="Error",
+                        message=f"Error while processing source, unable to format content:\n{content}\nwith:\n{data}\nerror:{exception}",
+                    )
 
-                else:
-                    content[config.spec["property"]][source.spec["name"]] = source.spec["content"]
+            else:
+                content[config.spec["property"]][key] = source.spec["content"]
         except Exception as exception:
             logger.error(
                 "Error while processing source %s.%s: %s",

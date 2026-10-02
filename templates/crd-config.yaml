@@ -45,6 +45,10 @@ spec:
                   type: string
                   default: "scm"
                   description: "Prefix for the ExternalSecret remoteRef keys"
+                namespacePrefix:
+                  type: boolean
+                  default: false
+                  description: "Always prefix the generated content keys with the source namespace"
             status:
               x-kubernetes-preserve-unknown-fields: true
     - name: v3

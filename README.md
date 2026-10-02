@@ -36,6 +36,41 @@ sources:
           TEST: test
 ```
 
+## Source name conflicts
+
+The key used in the generated file is the `spec.name` of each source. If two sources
+matching the same config share the same `spec.name` (for example one per namespace), the
+key would collide and one source would silently overwrite the other.
+
+To avoid that, when a conflict is detected all the sources of the conflicting group are
+prefixed with their namespace, and an `Error` event is emitted on the sources and on the
+config. With two sources named `test`, one in the namespace `ns1` and one in `ns2`:
+
+```
+sources:
+  ns1-test:
+    ...
+  ns2-test:
+    ...
+```
+
+If two conflicting sources are in the same namespace, the metadata name is also added to
+the key (`<namespace>-<metadata.name>-<name>`) to keep them distinct.
+
+## Always prefix with the namespace
+
+Set `namespacePrefix: true` in the config `spec` to always prefix the keys with the source
+namespace, even when there is no conflict:
+
+```yaml
+spec:
+  matchLabels:
+    app: my-app
+  property: sources
+  configmapName: config.yaml
+  namespacePrefix: true
+```
+
 ## Contributing
 
 Install the pre-commit hooks:

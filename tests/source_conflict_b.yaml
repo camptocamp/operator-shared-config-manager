@@ -1,0 +1,11 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigSourceTest
+metadata:
+  name: conflict-b
+  namespace: source2
+  labels:
+    test: conflict
+spec:
+  name: shared
+  content:
+    value: from-source2
