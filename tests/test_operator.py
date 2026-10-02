@@ -30,6 +30,7 @@ def install_operator(scope="session"):
         )
     subprocess.run(["kubectl", "apply", "--filename=operator.yaml"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "source"], check=True)
+    subprocess.run(["kubectl", "create", "namespace", "source2"], check=True)
     subprocess.run(["kubectl", "create", "namespace", "config"], check=True)
 
     pods = []
@@ -82,6 +83,7 @@ def install_operator(scope="session"):
     subprocess.run(["kubectl", "config", "set-context", "--current", "--namespace=default"], check=True)
     subprocess.run(["kubectl", "delete", "namespace", "config"], check=True)
     subprocess.run(["kubectl", "delete", "namespace", "source"], check=True)
+    subprocess.run(["kubectl", "delete", "namespace", "source2"], check=True)
 
     # We should have the pod to be able to extract the logs
     # subprocess.run(["kubectl", "delete", "--filename=operator.yaml"], check=True)
@@ -358,3 +360,105 @@ def test_operator(
         ["kubectl", "delete", f"--filename=tests/source_other_{source_other_version}.yaml"],
         check=True,
     )
+
+
+def _wait_config_map_data(
+    name: str, expected_data: dict[str, str], retries: int = 30
+) -> dict[str, str] | None:
+    """Wait for a ConfigMap to have the expected data and return it."""
+    config_map = None
+    for _ in range(retries):
+        try:
+            config_map = json.loads(
+                subprocess.run(
+                    ["kubectl", "get", "configmap", name, "--namespace=config", "--output=json"],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                ).stdout,
+            )
+        except subprocess.CalledProcessError:
+            config_map = None
+        if config_map is not None and config_map.get("data") == expected_data:
+            return config_map.get("data")
+        time.sleep(1)
+    return None if config_map is None else config_map.get("data")
+
+
+def test_conflict(install_operator):
+    """Two sources in different namespaces with the same spec name are all prefixed."""
+    del install_operator
+
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_conflict_a.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_conflict_b.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/config_conflict.yaml"], check=True)
+
+    expected_data = {
+        "conflict.yaml": "sources:\n"
+        "  source-shared:\n"
+        "    value: from-source\n"
+        "  source2-shared:\n"
+        "    value: from-source2\n",
+    }
+    data = _wait_config_map_data("conflict-config", expected_data)
+    assert data == expected_data, f"Unexpected ConfigMap data: {data}"
+
+    # An Error event should be emitted on the conflicting source
+    events_found = False
+    for _ in range(30):
+        events = json.loads(
+            subprocess.run(
+                ["kubectl", "get", "events", "--namespace=source2", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout,
+        )
+        if any("Conflicting source name" in event.get("message", "") for event in events["items"]):
+            events_found = True
+            break
+        time.sleep(1)
+    assert events_found, "No conflict Error event found on the source"
+
+    subprocess.run(["kubectl", "delete", "--filename=tests/config_conflict.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_conflict_a.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_conflict_b.yaml"], check=True)
+
+
+def test_namespace_prefix(install_operator):
+    """With namespacePrefix, keys are always prefixed and same names in different namespaces do not conflict."""
+    del install_operator
+
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_prefix.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_prefix_b.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/config_prefix.yaml"], check=True)
+
+    expected_data = {
+        "prefix.yaml": "sources:\n"
+        "  source-solo:\n"
+        "    value: from-source\n"
+        "  source2-solo:\n"
+        "    value: from-source2\n",
+    }
+    data = _wait_config_map_data("prefix-config", expected_data)
+    assert data == expected_data, f"Unexpected ConfigMap data: {data}"
+
+    # The keys are distinct, so no conflict event should be emitted on the objects of this test
+    # (the conflict events are emitted before the ConfigMap creation, no need to wait here).
+    for namespace in ("source", "source2", "config"):
+        events = json.loads(
+            subprocess.run(
+                ["kubectl", "get", "events", f"--namespace={namespace}", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout,
+        )
+        conflicts = [
+            event.get("message", "")
+            for event in events["items"]
+            if "Conflicting source name" in event.get("message", "")
+            and event.get("involvedObject", {}).get("name") in ("prefix-a", "prefix-b", "prefix-config")
+        ]
+        assert not conflicts, f"Unexpected conflict events in {namespace}: {conflicts}"
+
+    subprocess.run(["kubectl", "delete", "--filename=tests/config_prefix.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_prefix.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_prefix_b.yaml"], check=True)

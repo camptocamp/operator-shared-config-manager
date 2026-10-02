@@ -1,0 +1,11 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigSourceTest
+metadata:
+  name: prefix-b
+  namespace: source2
+  labels:
+    test: prefix
+spec:
+  name: solo
+  content:
+    value: from-source2

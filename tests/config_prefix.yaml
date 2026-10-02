@@ -1,0 +1,13 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigConfigTest
+metadata:
+  name: prefix-config
+  namespace: config
+  labels:
+    test: prefix-config
+spec:
+  matchLabels:
+    test: prefix
+  property: sources
+  configmapName: prefix.yaml
+  namespacePrefix: true

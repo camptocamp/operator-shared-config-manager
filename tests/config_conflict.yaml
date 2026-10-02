@@ -1,0 +1,12 @@
+apiVersion: camptocamp.com/v4
+kind: SharedConfigConfigTest
+metadata:
+  name: conflict-config
+  namespace: config
+  labels:
+    test: conflict-config
+spec:
+  matchLabels:
+    test: conflict
+  property: sources
+  configmapName: conflict.yaml
