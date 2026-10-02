@@ -213,20 +213,29 @@ async def _update_config(
         if _match(source, config):
             matched_sources.append(source)
 
-    name_counts: dict[str, int] = {}
+    # Compute the starting key of each source, the one used when there is no conflict. With
+    # namespacePrefix it already contains the namespace, so two sources with the same name in
+    # different namespaces do not conflict. The conflict is detected on this generated key and
+    # not on the raw source name, to not report artificial conflicts.
+    source_starts: list[tuple[kopf.Body, str]] = []
     for source in matched_sources:
-        name = source.spec["name"]
-        name_counts[name] = name_counts.get(name, 0) + 1
+        namespace = source.meta.namespace or "<undefined>"
+        start = f"{namespace}-{source.spec['name']}" if namespace_prefix else source.spec["name"]
+        source_starts.append((source, start))
+
+    start_counts: dict[str, int] = {}
+    for _, start in source_starts:
+        start_counts[start] = start_counts.get(start, 0) + 1
 
     # Compute the key used in the generated content for each source, prefixing it with the
-    # namespace on conflict, or always if requested, to not silently lose a source content.
+    # namespace on conflict to not silently lose a source content.
     used_keys: set[str] = set()
     matched_with_keys: list[tuple[kopf.Body, str]] = []
-    for source in matched_sources:
+    for source, start in source_starts:
         name = source.spec["name"]
         namespace = source.meta.namespace or "<undefined>"
         meta_name = source.meta.name or "<undefined>"
-        has_conflict = name_counts[name] > 1
+        has_conflict = start_counts[start] > 1
         if namespace_prefix or has_conflict:
             key = f"{namespace}-{name}"
             if key in used_keys:
@@ -239,8 +248,8 @@ async def _update_config(
         if has_conflict:
             others = ", ".join(
                 f"{other.meta.namespace or '<undefined>'}:{other.meta.name or '<undefined>'}"
-                for other in matched_sources
-                if other is not source and other.spec["name"] == name
+                for other, other_start in source_starts
+                if other is not source and other_start == start
             )
             logger.error(
                 "Conflicting source name '%s' used by config %s.%s, the source %s:%s is renamed to '%s' "

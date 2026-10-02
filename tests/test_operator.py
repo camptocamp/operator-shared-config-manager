@@ -424,17 +424,41 @@ def test_conflict(install_operator):
 
 
 def test_namespace_prefix(install_operator):
-    """With namespacePrefix, the keys are prefixed even without any conflict."""
+    """With namespacePrefix, keys are always prefixed and same names in different namespaces do not conflict."""
     del install_operator
 
     subprocess.run(["kubectl", "apply", "--filename=tests/source_prefix.yaml"], check=True)
+    subprocess.run(["kubectl", "apply", "--filename=tests/source_prefix_b.yaml"], check=True)
     subprocess.run(["kubectl", "apply", "--filename=tests/config_prefix.yaml"], check=True)
 
     expected_data = {
-        "prefix.yaml": "sources:\n  source-solo:\n    value: from-source\n",
+        "prefix.yaml": "sources:\n"
+        "  source-solo:\n"
+        "    value: from-source\n"
+        "  source2-solo:\n"
+        "    value: from-source2\n",
     }
     data = _wait_config_map_data("prefix-config", expected_data)
     assert data == expected_data, f"Unexpected ConfigMap data: {data}"
 
+    # The keys are distinct, so no conflict event should be emitted on the objects of this test
+    # (the conflict events are emitted before the ConfigMap creation, no need to wait here).
+    for namespace in ("source", "source2", "config"):
+        events = json.loads(
+            subprocess.run(
+                ["kubectl", "get", "events", f"--namespace={namespace}", "--output=json"],
+                check=True,
+                stdout=subprocess.PIPE,
+            ).stdout,
+        )
+        conflicts = [
+            event.get("message", "")
+            for event in events["items"]
+            if "Conflicting source name" in event.get("message", "")
+            and event.get("involvedObject", {}).get("name") in ("prefix-a", "prefix-b", "prefix-config")
+        ]
+        assert not conflicts, f"Unexpected conflict events in {namespace}: {conflicts}"
+
     subprocess.run(["kubectl", "delete", "--filename=tests/config_prefix.yaml"], check=True)
     subprocess.run(["kubectl", "delete", "--filename=tests/source_prefix.yaml"], check=True)
+    subprocess.run(["kubectl", "delete", "--filename=tests/source_prefix_b.yaml"], check=True)

@@ -71,6 +71,11 @@ spec:
   namespacePrefix: true
 ```
 
+With this option the conflict is detected on the generated key (`<namespace>-<name>`) and
+not on the raw `spec.name`, so two sources with the same name in different namespaces get
+distinct keys and are not reported as a conflict. Only sources sharing the same name in the
+same namespace still conflict.
+
 ## Contributing
 
 Install the pre-commit hooks:
