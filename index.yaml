@@ -3,6 +3,16 @@ entries:
   operator-shared-config-manager:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-10-02T10:41:39.001540601Z"
+    description: A Helm chart for Kubernetes
+    digest: e56694c8a133d65b4af89e00f73f42b419b20e3d2ece851d9baaef8197141e54
+    name: operator-shared-config-manager
+    type: application
+    urls:
+    - https://github.com/camptocamp/operator-shared-config-manager/releases/download/1.2.0/operator-shared-config-manager-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-03-21T14:55:37.356096869Z"
     description: A Helm chart for Kubernetes
     digest: e205bba38f4025861910728ef7d1029d5f544b22277702d8c7228eaa7ad3d084
@@ -181,4 +191,4 @@ entries:
     urls:
     - https://github.com/camptocamp/operator-shared-config-manager/releases/download/0.1.0/operator-shared-config-manager-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-21T14:55:37.356222693Z"
+generated: "2026-10-02T10:41:39.001661483Z"
