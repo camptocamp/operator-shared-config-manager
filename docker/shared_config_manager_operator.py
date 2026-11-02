@@ -380,6 +380,11 @@ async def _update_config(
             ", ".join(content[config.spec["property"]].keys()),
             ", ".join([":".join(e) for e in sources]),
         )
+        config_namespace = config.meta.namespace
+        if config_namespace is None:
+            message = "The config has no namespace, the output cannot be updated."
+            raise RuntimeError(message)
+
         match output_kind:
             case "ConfigMap":
                 config_map = {
@@ -392,12 +397,12 @@ async def _update_config(
                     },
                 }
 
-                api = kubernetes.client.CoreV1Api()
+                core_api = kubernetes.client.CoreV1Api()
 
                 current_config_map = None
                 try:
-                    current_config_map = api.read_namespaced_config_map(
-                        namespace=config.meta.namespace,
+                    current_config_map = core_api.read_namespaced_config_map(
+                        namespace=config_namespace,
                         name=config.meta.name,
                     )
                 except kubernetes.client.exceptions.ApiException as exception:
@@ -405,8 +410,8 @@ async def _update_config(
                         raise
 
                 if current_config_map:
-                    api.patch_namespaced_config_map(
-                        namespace=config.meta.namespace,
+                    core_api.patch_namespaced_config_map(
+                        namespace=config_namespace,
                         name=config.meta.name,
                         body=config_map,
                     )
@@ -420,7 +425,10 @@ async def _update_config(
                         **config_map,
                     }
                     kopf.adopt(config_map_full, config)
-                    api.create_namespaced_config_map(namespace=config.meta.namespace, body=config_map_full)
+                    core_api.create_namespaced_config_map(
+                        namespace=config_namespace,
+                        body=kubernetes.client.V1ConfigMap.model_validate(config_map_full),
+                    )
 
             case "ExternalSecret":
                 external_secret = {
@@ -443,14 +451,14 @@ async def _update_config(
                     },
                 }
 
-                api = kubernetes.client.CustomObjectsApi()
+                custom_objects_api = kubernetes.client.CustomObjectsApi()
                 current_external_secret = None
                 try:
-                    current_external_secret = api.get_namespaced_custom_object(
+                    current_external_secret = custom_objects_api.get_namespaced_custom_object(
                         group="external-secrets.io",
                         version="v1beta1",
                         plural="externalsecrets",
-                        namespace=config.meta.namespace,
+                        namespace=config_namespace,
                         name=config.meta.name,
                     )
                 except kubernetes.client.exceptions.ApiException as exception:
@@ -458,11 +466,11 @@ async def _update_config(
                         raise
 
                 if current_external_secret:
-                    api.patch_namespaced_custom_object(
+                    custom_objects_api.patch_namespaced_custom_object(
                         group="external-secrets.io",
                         version="v1beta1",
                         plural="externalsecrets",
-                        namespace=config.meta.namespace,
+                        namespace=config_namespace,
                         name=config.meta.name,
                         body=external_secret,
                     )
@@ -477,11 +485,11 @@ async def _update_config(
                     }
                     kopf.adopt(external_secret_full, config)
 
-                    api.create_namespaced_custom_object(
+                    custom_objects_api.create_namespaced_custom_object(
                         group="external-secrets.io",
                         version="v1beta1",
                         plural="externalsecrets",
-                        namespace=config.meta.namespace,
+                        namespace=config_namespace,
                         body=external_secret_full,
                     )
 
