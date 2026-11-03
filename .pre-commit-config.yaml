@@ -16,7 +16,7 @@ repos:
       - id: trailing-whitespace
       - id: mixed-line-ending
   - repo: https://github.com/sbrunner/hooks
-    rev: 1.8.0
+    rev: 1.9.0
     hooks:
       - id: copyright
       - id: poetry2-lock
@@ -24,6 +24,10 @@ repos:
           - poetry==2.5.1 # pypi
         exclude: ^pyproject.toml$
       - id: helm-lock
+      - id: uv-lock
+        additional_dependencies:
+          - uv==0.13.4 # pypi
+        files: ^\.github/publish/pyproject\.toml$
       - id: canonicalize
       - id: prospector-to-ruff
         additional_dependencies:
